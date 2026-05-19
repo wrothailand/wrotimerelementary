@@ -18,7 +18,6 @@
       --danger: #dc2626;
       --text-main: #0f172a;
       --text-sub: #334155;
-      --glow: rgba(2, 132, 199, 0.15);
     }
 
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -41,7 +40,7 @@
       max-width: 500px;
       height: 90vh;
       background: var(--card);
-      padding: 2rem 1.5rem;
+      padding: 1.5rem 1.5rem;
       border-radius: 12px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.08);
       text-align: center;
@@ -55,21 +54,57 @@
     .header-info { margin-top: 0.2rem; }
     .version-tag { font-size: 0.75rem; color: var(--text-sub); font-weight:600; opacity: 0.7; letter-spacing: 1px; }
 
+    /* ปุ่มเซฟด้านบน แยกพื้นที่ชัดเจน */
+    #save-zone {
+      min-height: 45px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 5px;
+    }
+    .btn-save-top {
+      background: var(--success);
+      color: white;
+      border: none;
+      padding: 8px 24px;
+      font-size: 1rem;
+      font-weight: 700;
+      border-radius: 20px;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
+      animation: pulseGlow 1.5s infinite;
+      font-family: 'Kanit';
+    }
+
+    /* สไตล์การแสดงผลตัวเลขเวลา */
     .timer-display {
       font-size: clamp(5rem, 22vw, 8.5rem);
       font-weight: 800;
       font-family: 'JetBrains Mono', monospace;
       color: var(--text-main);
-      margin: 0.5rem 0;
+      margin: 0.2rem 0;
       transition: color 0.1s ease;
+      display: inline-block;
+      width: 100%;
     }
     
     .timer-display.counting { color: var(--primary); }
-    .timer-display.warning-active { color: var(--danger); }
+    
+    /* เอฟเฟกต์แจ้งเตือน 10 วินาทีสุดท้าย แบบเดียวกับปุ่มเซฟ */
+    .timer-display.warning-active {
+      color: var(--danger);
+      animation: pulseGlow 1.5s infinite;
+    }
+
+    @keyframes pulseGlow {
+      0% { transform: scale(1); filter: drop-shadow(0 2px 4px rgba(220, 38, 38, 0.2)); }
+      50% { transform: scale(1.04); filter: drop-shadow(0 8px 16px rgba(220, 38, 38, 0.4)); }
+      100% { transform: scale(1); filter: drop-shadow(0 2px 4px rgba(220, 38, 38, 0.2)); }
+    }
 
     .progress-container {
       width: 100%; height: 12px; background: #e2e8f0;
-      border-radius: 4px; overflow: hidden; margin-bottom: 1.5rem;
+      border-radius: 4px; overflow: hidden; margin-bottom: 1rem;
     }
     #progress-bar { 
       width: 0%; height: 100%; background: var(--primary); 
@@ -79,42 +114,42 @@
 
     .btn-setting { 
       background: #e2e8f0; border: none; color: var(--text-main);
-      padding: 8px 16px; border-radius: 4px; font-size: 0.85rem;
+      padding: 6px 14px; border-radius: 4px; font-size: 0.85rem;
       cursor: pointer; margin-bottom: 0.5rem; transition: 0.2s;
       font-family: 'Kanit'; font-weight: 600;
     }
 
-    /* สไตล์ปุ่มหลักแบบปรับปรุง */
+    /* ปุ่มหลักสลับสถานะ (Start / Pause-Stop / Resume) */
     .action-btn-style {
-      width: 100%; border: none; padding: 1.3rem;
-      font-size: 1.8rem; font-weight: 700; border-radius: 8px;
+      width: 100%; border: none; padding: 1.4rem;
+      font-size: 2rem; font-weight: 700; border-radius: 8px;
       cursor: pointer; transition: transform 0.1s ease, background-color 0.2s;
       font-family: 'Kanit'; color: white;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
     }
     .action-btn-style:active { transform: scale(0.97); }
 
     .btn-start { background: var(--primary); }
     .btn-pause { background: var(--warning); }
-    .btn-stop { background: var(--danger); }
-    .btn-save-mode { background: var(--success); }
     
-    .control-grid {
+    /* โครงสร้างปุ่มแถวล่างสุดเดิม */
+    .control-grid-bottom {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 12px;
       width: 100%;
+      margin-top: 12px;
     }
-
-    .secondary-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; margin-top: 1rem; }
-    .btn-sub { 
-      border: 2px solid #cbd5e1; padding: 0.8rem; border-radius: 8px;
-      cursor: pointer; font-family: 'Kanit'; background: white; color: var(--text-main);
-      font-weight: 600; transition: 0.2s; font-size: 1rem;
+    .btn-bottom-style {
+      border: 1px solid #cbd5e1; padding: 0.6rem; border-radius: 6px;
+      cursor: pointer; font-family: 'Kanit'; background: white; color: var(--text-sub);
+      font-weight: 600; transition: 0.2s; font-size: 0.95rem;
     }
-    .btn-sub:hover { background: #f8fafc; border-color: var(--text-main); }
+    .btn-bottom-style:hover { background: #f8fafc; }
+    .btn-reset-danger:hover { background: #fef2f2; color: var(--danger); border-color: #fca5a5; }
 
     .footer-credit {
-      margin-top: 1rem; font-size: 0.85rem; color: var(--text-sub);
+      margin-top: 0.8rem; font-size: 0.85rem; color: var(--text-sub);
       letter-spacing: 1px; font-weight: 400;
     }
     .footer-credit b { color: var(--primary); font-weight: 700; }
@@ -144,8 +179,6 @@
     input:checked + .slider:before { transform: translateX(20px); }
 
     #display-team-name { font-size: 1.5rem; font-weight: 700; color: var(--text-main); line-height: 1.2; margin-top: 5px; }
-    
-    /* ปรับขนาดฟอนต์ ID ลงตามบรีฟก่อนหน้า (0.9rem) */
     #display-key { font-size: 0.9rem; font-weight: 700; color: var(--primary); background: #e0f2fe; display: inline-block; padding: 2px 12px; border-radius: 4px; }
 
     .history-item { 
@@ -157,16 +190,19 @@
     #history-list::-webkit-scrollbar-track { background: #f1f5f9; }
     #history-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
 
-    @media (min-height: 800px) { .container { height: 720px; } }
+    @media (min-height: 800px) { .container { height: 740px; } }
   </style>
 </head>
 <body>
 
 <div class="container">
+  <!-- โซนปุ่มบันทึกผลการแข่งขันด้านบน -->
+  <div id="save-zone"></div>
+
   <div class="header-info">
-    <div class="version-tag">WRO 2026 OFFICIAL TIMER | V.2.6.7 HYBRID</div>
+    <div class="version-tag">WRO 2026 OFFICIAL TIMER | V.2.7.0 HYBRID</div>
     
-    <div id="team-info-display" style="margin-top: 12px; min-height: 90px;">
+    <div id="team-info-display" style="margin-top: 8px; min-height: 85px;">
       <div id="display-key">CHECKING ID</div>
       <div id="display-team-name">กำลังโหลดข้อมูล...</div>
       <div id="display-institution" style="font-size: 0.95rem; color: var(--text-sub); margin-top: 4px; font-weight: 500;">PLEASE WAIT</div>
@@ -180,15 +216,17 @@
   </div>
 
   <div style="width: 100%;">
-    <!-- พื้นที่สำหรับปุ่มควบคุมที่จะปรับเปลี่ยนตาม State แบบไดนามิก -->
+    <!-- ตัวควบคุมปุ่มหลักตัวกลางแบบ Dynamic (สลับหน้าที่ในปุ่มเดียว) -->
     <div id="action-controller">
       <button id="actionBtn" class="action-btn-style btn-start" onclick="handleAction()">START</button>
     </div>
 
-    <div class="secondary-controls">
-      <button class="btn-sub" onclick="confirmReset()">RESET</button>
-      <button class="btn-sub" onclick="showHistory()">HISTORY</button>
+    <!-- โครงสร้างชุดปุ่มประวัติและรีเซ็ตตำแหน่งดั้งเดิมด้านล่าง -->
+    <div class="control-grid-bottom">
+      <button class="btn-bottom-style" onclick="showHistory()">HISTORY 📋</button>
+      <button class="btn-bottom-style btn-reset-danger" onclick="confirmReset()">RESET 🔄</button>
     </div>
+
     <div class="footer-credit">CREATE BY <b>GOZAMA</b></div>
   </div>
 </div>
@@ -215,7 +253,7 @@
         <label class="switch"><input type="checkbox" id="setWarning" checked><span class="slider"></span></label>
       </div>
       <button class="btn-start" style="width:100%; margin-top:10px; padding:12px; font-size: 1.1rem; border-radius: 6px; border:none; color:white; font-weight:700; cursor:pointer;" onclick="saveSettings()">บันทึกการตั้งค่า</button>
-      <button class="btn-sub" style="width: 100%; margin-top: 8px;" onclick="document.getElementById('settingModal').style.display='none'">ยกเลิก</button>
+      <button class="btn-bottom-style" style="width: 100%; margin-top: 8px; background: #64748b; color: white;" onclick="document.getElementById('settingModal').style.display='none'">ยกเลิก</button>
     </div>
   </div>
 
@@ -224,7 +262,7 @@
     <div class="modal-content" onclick="event.stopPropagation()" style="max-width: 450px;">
       <h3 style="margin-top: 0; margin-bottom:15px; color: var(--text-main); font-weight: 700;">ประวัติการบันทึก (เครื่องนี้)</h3>
       <div id="history-list" style="max-height: 45vh; overflow-y: auto; padding-right: 5px;"></div>
-      <button class="btn-sub" style="width: 100%; margin-top: 20px; background: var(--text-main); color: white;" onclick="document.getElementById('history-modal').style.display='none'">ปิดหน้าต่าง</button>
+      <button class="btn-bottom-style" style="width: 100%; margin-top: 20px; background: #64748b; color: white;" onclick="document.getElementById('history-modal').style.display='none'">ปิดหน้าต่าง</button>
     </div>
   </div>
 
@@ -277,7 +315,6 @@
 
     function setControlsEnabled(enabled) {
       document.getElementById('settingBtn').disabled = !enabled;
-      document.querySelectorAll('.btn-sub').forEach(btn => btn.disabled = !enabled);
     }
 
     function directClose() {
@@ -330,35 +367,32 @@
     }
 
     // ==========================================
-    // STATE MACHINE & DYNAMIC UI SWITCHER
+    // STATE MACHINE & CONTROLLER RENDERING
     // ==========================================
     function renderButtonUI() {
-      const controller = document.getElementById('action-controller');
+      const mainController = document.getElementById('action-controller');
+      const saveZone = document.getElementById('save-zone');
       
       if (state === "IDLE") {
-        controller.innerHTML = `<button id="actionBtn" class="action-btn-style btn-start" onclick="handleAction()">START</button>`;
+        mainController.innerHTML = `<button id="actionBtn" class="action-btn-style btn-start" onclick="handleAction()">START</button>`;
+        saveZone.innerHTML = "";
       } 
       else if (state === "COUNTING") {
-        controller.innerHTML = `<button id="actionBtn" class="action-btn-style btn-start" style="opacity: 0.5; cursor: not-allowed;" disabled>COUNTDOWN</button>`;
+        mainController.innerHTML = `<button id="actionBtn" class="action-btn-style btn-start" style="opacity: 0.5; cursor: not-allowed;" disabled>COUNTDOWN</button>`;
+        saveZone.innerHTML = "";
       } 
       else if (state === "RUNNING") {
-        controller.innerHTML = `
-          <div class="control-grid">
-            <button class="action-btn-style btn-pause" onclick="pauseRunning()">PAUSE</button>
-            <button class="action-btn-style btn-stop" onclick="stopRunning()">STOP</button>
-          </div>
-        `;
+        // ยุบรวมปุ่ม Pause และ Stop เป็นปุ่มเดียวตามที่ผู้ใช้ร้องขอ
+        mainController.innerHTML = `<button id="actionBtn" class="action-btn-style btn-pause" onclick="pauseRunning()">PAUSE / STOP</button>`;
+        saveZone.innerHTML = "";
       } 
       else if (state === "PAUSED") {
-        controller.innerHTML = `
-          <div class="control-grid">
-            <button class="action-btn-style btn-start" onclick="resumeRunning()">RESUME</button>
-            <button class="action-btn-style btn-stop" onclick="stopRunning()">STOP</button>
-          </div>
-        `;
+        mainController.innerHTML = `<button id="actionBtn" class="action-btn-style btn-start" onclick="resumeRunning()">RESUME</button>`;
+        saveZone.innerHTML = `<button class="btn-save-top" onclick="confirmSave()">💾 SAVE RESULT</button>`;
       } 
       else if (state === "FINISHED") {
-        controller.innerHTML = `<button id="actionBtn" class="action-btn-style btn-save-mode" onclick="confirmSave()">SAVE RESULT</button>`;
+        mainController.innerHTML = `<button id="actionBtn" class="action-btn-style btn-start" style="opacity: 0.4; cursor:not-allowed;" disabled>TIME OVER</button>`;
+        saveZone.innerHTML = `<button class="btn-save-top" onclick="confirmSave()">💾 SAVE RESULT</button>`;
       }
     }
 
@@ -423,7 +457,9 @@
         clearInterval(timerInterval);
         timerInterval = null;
         state = "PAUSED";
+        setControlsEnabled(true);
         renderButtonUI();
+        displayTime(elapsedTime);
       }
     }
 
@@ -431,18 +467,10 @@
       if (state === "PAUSED") {
         state = "RUNNING";
         renderButtonUI();
+        setControlsEnabled(false);
         startTime = Date.now() - elapsedTime;
         timerInterval = setInterval(update, 10);
       }
-    }
-
-    function stopRunning() {
-      clearInterval(timerInterval);
-      timerInterval = null;
-      state = "FINISHED";
-      renderButtonUI();
-      setControlsEnabled(true);
-      displayTime(elapsedTime);
     }
 
     function update() {
@@ -452,8 +480,13 @@
       
       if (elapsedTime >= limitMs) { 
         elapsedTime = limitMs; 
-        stopRunning(); 
+        clearInterval(timerInterval);
+        timerInterval = null;
+        state = "FINISHED";
+        renderButtonUI();
+        setControlsEnabled(true);
         playBeep(440, 0.5); 
+        displayTime(elapsedTime);
         return;
       }
       
@@ -462,6 +495,7 @@
       const display = document.getElementById('display');
       const progressBar = document.getElementById('progress-bar');
       
+      // การตรวจจับช่วง 10 วินาทีสุดท้าย และใส่เอฟเฟกต์ Glow ชีพจรเหมือนปุ่มเซฟผล
       if (CONFIG.useWarning && remainSec <= CONFIG.warnAt && state === "RUNNING") {
         display.classList.add('warning-active');
         progressBar.classList.add('warning-active');
@@ -503,12 +537,12 @@
     function confirmSave() {
       const timeStr = (elapsedTime / 1000).toFixed(2);
       Swal.fire({
-        title: 'บันทึกเวลา?',
-        text: `เวลาที่จับได้: ${timeStr} วินาที`,
+        title: 'บันทึกเวลาแข่งขัน?',
+        text: `เวลาทีมชิ้นนี้คือ: ${timeStr} วินาที`,
         icon: 'question',
         showCancelButton: true,
         confirmButtonColor: '#16a34a',
-        confirmButtonText: 'บันทึก',
+        confirmButtonText: 'ใช่, บันทึกเลย',
         cancelButtonText: 'ยกเลิก'
       }).then((result) => { if (result.isConfirmed) saveToSheet(timeStr); });
     }
@@ -519,25 +553,21 @@
         return; 
       }
       
-      // แสดง SweetAlert กำลังบันทึกข้อมูลแบบปิดไม่ได้ ป้องกันการกดซ้ำซ้อน
       Swal.fire({
         title: 'กำลังบันทึกข้อมูล...',
-        text: 'ระบบกำลังนำส่งเวลาเข้าสู่เซิร์ฟเวอร์ โปรดรอสักครู่',
+        text: 'ระบบกำลังส่งข้อมูลเวลาเข้าสู่คลาวด์ โปรดรอสักครู่',
         allowOutsideClick: false,
         allowEscapeKey: false,
-        didOpen: () => {
-          Swal.showLoading();
-        }
+        didOpen: () => { Swal.showLoading(); }
       });
       
       callBackend('saveTime', { timeStr: timeStr, deviceID: myDeviceID, rowKey: globalRowKey }, function(res) {
-        Swal.close(); // ปิดโหลดดิ้ง
-        
+        Swal.close(); 
         if(res && res.success) {
           Swal.fire({ 
             icon: 'success',
             title: 'บันทึกสำเร็จ!',
-            text: `บันทึกเวลา ${timeStr} วินาที เรียบร้อยแล้ว`,
+            text: `ส่งผลการจับเวลา ${timeStr} วินาที เรียบร้อย`,
             allowOutsideClick: false,
             allowEscapeKey: false,
             confirmButtonColor: '#dc2626',
@@ -550,7 +580,7 @@
     }
 
     function confirmReset() {
-      Swal.fire({ title: 'Reset เวลา?', text: 'การจับเวลาปัจจุบันจะถูกล้างค่าออกทั้งหมด', icon: 'warning', showCancelButton: true, confirmButtonColor: '#dc2626', confirmButtonText: 'ใช่, รีเซ็ต' })
+      Swal.fire({ title: 'Reset เวลา?', text: 'กระบวนการนี้จะล้างเวลาปัจจุบันทิ้งทั้งหมด', icon: 'warning', showCancelButton: true, confirmButtonColor: '#dc2626', confirmButtonText: 'ใช่, รีเซ็ต' })
       .then((result) => { if (result.isConfirmed) reset(); });
     }
 
