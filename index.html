@@ -135,7 +135,9 @@
     input:checked + .slider:before { transform: translateX(20px); }
 
     #display-team-name { font-size: 1.5rem; font-weight: 700; color: var(--text-main); line-height: 1.2; margin-top: 5px; }
-    #display-key { font-size: 1.1rem; font-weight: 700; color: var(--primary); background: #e0f2fe; display: inline-block; padding: 2px 12px; border-radius: 4px; }
+    
+    /* ปรับขนาด Font ตรงนี้ให้เล็กลงตามบรีฟ (จาก 1.1rem -> 0.9rem) */
+    #display-key { font-size: 0.9rem; font-weight: 700; color: var(--primary); background: #e0f2fe; display: inline-block; padding: 2px 12px; border-radius: 4px; }
 
     .history-item { 
       border-radius: 6px; margin-bottom: 6px; padding: 12px !important; 
@@ -153,7 +155,7 @@
 
 <div class="container">
   <div class="header-info">
-    <div class="version-tag">SYSTEM VERSION 2.6.5 HYBRID PRO</div>
+    <div class="version-tag">SYSTEM VERSION 2.6.6 HYBRID PRO</div>
     
     <div id="team-info-display" style="margin-top: 12px; min-height: 90px;">
       <div id="display-key">CHECKING ID</div>
@@ -216,10 +218,9 @@
   <script>
     // ==========================================
     // CRITICAL HYBRID CONFIGURATION
-    // นำ URL Web App (ที่ได้จากการ Deploy ใน Apps Script) มาวางที่นี่
-    // สำคัญมาก: ตัวแปรนี้จะถูกเรียกใช้เฉพาะเวลาที่เอาไปเปิดรันบน GitHub Pages
+    // อย่าลืมนำ URL Web App มาวางที่นี่เมื่อต้องการรันบน GitHub Pages
     // ==========================================
-    const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw-5W0x3pSIlwE-vCUNOai_mJzQaEZ3gRLhsddK67Dwv3qVWO6qK-qu7U2CGWMUCRe-sQ/exec"; 
+    const GAS_WEB_APP_URL = "https://script.google.com/macros/s/XXXXXX_YOUR_DEPLOY_ID_XXXXXX/exec"; 
 
     let globalRowKey = ""; 
     let CONFIG = {
@@ -257,7 +258,6 @@
       document.querySelectorAll('.btn-sub').forEach(btn => btn.disabled = isDisable);
     }
 
-    // ฟังก์ชันสั่งปิดหน้ารองรับ Safari และการย้อนกลับของระบบ AppSheet เจนเนอเรชันใหม่
     function directClose() {
       window.open('', '_self', ''); 
       window.close(); 
@@ -276,7 +276,6 @@
 
     function callBackend(action, params, callback) {
       if (isGoogleEnv) {
-        // โหมดดั้งเดิม: เปิดภายใน Google Apps Script Web App
         if (action === 'getTeamInfo') {
           google.script.run.withSuccessHandler(callback).getTeamInfo(params.rowKey);
         } else if (action === 'saveTime') {
@@ -285,7 +284,6 @@
           google.script.run.withSuccessHandler(callback).getHistory(params.deviceID);
         }
       } else {
-        // โหมด API Fetch: ปลอดภัยสูงเมื่อดึงจากภายนอก เช่น GitHub Pages
         let url = `${GAS_WEB_APP_URL}?action=${action}`;
         for (let key in params) {
           url += `&${key}=${encodeURIComponent(params[key])}`;
