@@ -54,7 +54,6 @@
     .header-info { margin-top: 0.2rem; }
     .version-tag { font-size: 0.75rem; color: var(--text-sub); font-weight:600; opacity: 0.7; letter-spacing: 1px; }
 
-    /* ปุ่มเซฟด้านบน แยกพื้นที่ชัดเจน */
     #save-zone {
       min-height: 45px;
       display: flex;
@@ -76,7 +75,6 @@
       font-family: 'Kanit';
     }
 
-    /* สไตล์การแสดงผลตัวเลขเวลา */
     .timer-display {
       font-size: clamp(5rem, 22vw, 8.5rem);
       font-weight: 800;
@@ -90,7 +88,6 @@
     
     .timer-display.counting { color: var(--primary); }
     
-    /* เอฟเฟกต์แจ้งเตือน 10 วินาทีสุดท้าย แบบเดียวกับปุ่มเซฟ */
     .timer-display.warning-active {
       color: var(--danger);
       animation: pulseGlow 1.5s infinite;
@@ -119,7 +116,6 @@
       font-family: 'Kanit'; font-weight: 600;
     }
 
-    /* ปุ่มหลักสลับสถานะ (Start / Pause-Stop / Resume) */
     .action-btn-style {
       width: 100%; border: none; padding: 1.4rem;
       font-size: 2rem; font-weight: 700; border-radius: 8px;
@@ -132,7 +128,6 @@
     .btn-start { background: var(--primary); }
     .btn-pause { background: var(--warning); }
     
-    /* โครงสร้างปุ่มแถวล่างสุดเดิม */
     .control-grid-bottom {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -190,17 +185,92 @@
     #history-list::-webkit-scrollbar-track { background: #f1f5f9; }
     #history-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
 
+    /* ==========================================
+       CUTE ROBOT LOADING ANIMATION CSS
+       ========================================== */
+    .robot-loading-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 1rem;
+    }
+    .cute-robot {
+      width: 70px; height: 70px;
+      background: #0284c7;
+      border-radius: 12px;
+      position: relative;
+      box-shadow: inset 0 -6px 0 rgba(0,0,0,0.15), 0 8px 20px rgba(2, 132, 199, 0.3);
+      animation: robotBounce 0.6s infinite alternate cubic-bezier(0.45, 0, 0.55, 1);
+    }
+    /* หูเสาอากาศ */
+    .cute-robot::before {
+      content: ''; position: absolute;
+      width: 6px; height: 12px; background: #006192;
+      top: -12px; left: calc(50% - 3px); border-radius: 3px;
+    }
+    /* ไฟกลมบนเสาอากาศ */
+    .cute-robot::after {
+      content: ''; position: absolute;
+      width: 10px; height: 10px; background: #f59e0b;
+      top: -20px; left: calc(50% - 5px); border-radius: 50%;
+      animation: lightBlink 0.4s infinite alternate;
+    }
+    /* หน้าจอและตาหุ่นยนต์ */
+    .robot-face {
+      width: 52px; height: 32px; background: #0f172a;
+      border-radius: 6px; margin: 12px auto 0;
+      position: relative; display: flex; justify-content: space-around;
+      align-items: center; padding: 0 8px;
+    }
+    .robot-eye {
+      width: 10px; height: 10px; background: #38bdf8; border-radius: 50%;
+      box-shadow: 0 0 8px #38bdf8; animation: eyeBlink 2.5s infinite;
+    }
+    /* ล้อหุ่นยนต์ */
+    .robot-wheels {
+      display: flex; justify-content: space-between;
+      width: 50px; margin: 4px auto 0;
+    }
+    .wheel {
+      width: 14px; height: 8px; background: #475569; border-radius: 4px;
+      animation: wheelRoll 0.3s infinite linear;
+    }
+    /* ข้อความแอนิเมชันด้านล่าง */
+    .loading-cute-text {
+      font-family: 'Kanit'; font-size: 1rem; color: #334155;
+      font-weight: 600; margin-top: 20px; text-align: center;
+      min-height: 24px; transition: all 0.3s ease;
+    }
+
+    @keyframes robotBounce {
+      0% { transform: translateY(0) scaleX(1); }
+      100% { transform: translateY(-12px) scaleX(0.96); }
+    }
+    @keyframes lightBlink {
+      0% { opacity: 0.5; background: #ef4444; box-shadow: none; }
+      100% { opacity: 1; background: #f59e0b; box-shadow: 0 0 10px #f59e0b; }
+    }
+    @keyframes eyeBlink {
+      0%, 90%, 100% { transform: scaleY(1); }
+      95% { transform: scaleY(0.1); }
+    }
+    @keyframes wheelRoll {
+      0% { transform: translateY(0); }
+      50% { transform: translateY(2px); }
+      100% { transform: translateY(0); }
+    }
+
     @media (min-height: 800px) { .container { height: 740px; } }
   </style>
 </head>
 <body>
 
 <div class="container">
-  <!-- โซนปุ่มบันทึกผลการแข่งขันด้านบน -->
   <div id="save-zone"></div>
 
   <div class="header-info">
-    <div class="version-tag">WRO 2026 OFFICIAL TIMER | V.2.7.2 HYBRID</div>
+    <div class="version-tag">WRO 2026 OFFICIAL TIMER | V.2.8.0 CUTE-ANIME</div>
     
     <div id="team-info-display" style="margin-top: 8px; min-height: 85px;">
       <div id="display-key">CHECKING ID</div>
@@ -216,12 +286,10 @@
   </div>
 
   <div style="width: 100%;">
-    <!-- ตัวควบคุมปุ่มหลักตัวกลางแบบ Dynamic (สลับหน้าที่ในปุ่มเดียว) -->
     <div id="action-controller">
       <button id="actionBtn" class="action-btn-style btn-start" onclick="handleAction()">START</button>
     </div>
 
-    <!-- โครงสร้างชุดปุ่มประวัติและรีเซ็ตตำแหน่งดั้งเดิมด้านล่าง -->
     <div class="control-grid-bottom">
       <button class="btn-bottom-style" onclick="showHistory()">HISTORY 📋</button>
       <button class="btn-bottom-style btn-reset-danger" onclick="confirmReset()">RESET 🔄</button>
@@ -267,9 +335,6 @@
   </div>
 
   <script>
-    // ==========================================
-    // CRITICAL HYBRID CONFIGURATION
-    // ==========================================
     const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw-5W0x3pSIlwE-vCUNOai_mJzQaEZ3gRLhsddK67Dwv3qVWO6qK-qu7U2CGWMUCRe-sQ/exec"; 
 
     let globalRowKey = ""; 
@@ -280,9 +345,10 @@
       warnAt: parseFloat(localStorage.getItem('cfg_warnAt')) || 10
     };
     
-    let state = "IDLE"; // IDLE, COUNTING, RUNNING, PAUSED, FINISHED
+    let state = "IDLE"; 
     let startTime, elapsedTime = 0, timerInterval = null, countdownInt = null;
     let lastBeepSecond = -1;
+    let textRotationInterval = null;
 
     let myDeviceID = localStorage.getItem('timer_device_id');
     if (!myDeviceID) {
@@ -382,7 +448,6 @@
         saveZone.innerHTML = "";
       } 
       else if (state === "RUNNING") {
-        // ยุบรวมปุ่ม Pause และ Stop เป็นปุ่มเดียวตามที่ผู้ใช้ร้องขอ
         mainController.innerHTML = `<button id="actionBtn" class="action-btn-style btn-pause" onclick="pauseRunning()">PAUSE / STOP</button>`;
         saveZone.innerHTML = "";
       } 
@@ -495,7 +560,6 @@
       const display = document.getElementById('display');
       const progressBar = document.getElementById('progress-bar');
       
-      // การตรวจจับช่วง 10 วินาทีสุดท้าย และใส่เอฟเฟกต์ Glow ชีพจรเหมือนปุ่มเซฟผล
       if (CONFIG.useWarning && remainSec <= CONFIG.warnAt && state === "RUNNING") {
         display.classList.add('warning-active');
         progressBar.classList.add('warning-active');
@@ -538,27 +602,69 @@
       const timeStr = (elapsedTime / 1000).toFixed(2);
       Swal.fire({
         title: 'บันทึกเวลาแข่งขัน?',
-        text: `เวลาคือ: ${timeStr} วินาที`,
+        text: `เวลาทีมชิ้นนี้คือ: ${timeStr} วินาที`,
         icon: 'question',
         showCancelButton: true,
         confirmButtonColor: '#16a34a',
-        confirmButtonText: 'ใช่, รอไรอะ',
+        confirmButtonText: 'ใช่, บันทึกเลย',
         cancelButtonText: 'ยกเลิก'
       }).then((result) => { if (result.isConfirmed) saveToSheet(timeStr); });
     }
 
+    // ==========================================
+    // ANIMATED LOADING LOGIC FOR SAVE PROCESS
+    // ==========================================
     function saveToSheet(timeStr) {
       if (!globalRowKey) { 
         Swal.fire('Error', 'ไม่พบข้อมูล ID ทีมใน URL ลิงก์', 'error');
         return; 
       }
       
+      const loadingTexts = [
+        "กำลังพาหุ่นยนต์ไปส่งคะแนน...",
+        "ตรวจสอบล้อและเซนเซอร์...",
+        "กำลังบันทึกลง Google Sheets...",
+        "อัปโหลดข้อมูลเข้าคลาวด์...",
+        "รอสัญญาณตอบกลับจากบอร์ด..."
+      ];
+      
+      // เรียกหน้าต่างโหลดดิ้งรูปแบบหุ่นยนต์ดุ๊กดิ๊กแบบ CSS เพียว
       Swal.fire({
-        title: 'กำลังบันทึกข้อมูล...',
-        text: 'รอแป๊บนะ กำลังเซฟอยู่',
+        html: `
+          <div class="robot-loading-container">
+            <div class="cute-robot">
+              <div class="robot-face">
+                <div class="robot-eye"></div>
+                <div class="robot-eye"></div>
+              </div>
+            </div>
+            <div class="robot-wheels">
+              <div class="wheel"></div>
+              <div class="wheel"></div>
+            </div>
+            <div id="cute-loading-msg" class="loading-cute-text">${loadingTexts[0]}</div>
+          </div>
+        `,
+        showConfirmButton: false,
         allowOutsideClick: false,
         allowEscapeKey: false,
-        didOpen: () => { Swal.showLoading(); }
+        didOpen: () => {
+          let textIdx = 1;
+          textRotationInterval = setInterval(() => {
+            const textEl = document.getElementById('cute-loading-msg');
+            if (textEl) {
+              textEl.style.opacity = 0;
+              setTimeout(() => {
+                textEl.innerText = loadingTexts[textIdx % loadingTexts.length];
+                textEl.style.opacity = 1;
+                textIdx++;
+              }, 150);
+            }
+          }, 1500);
+        },
+        willClose: () => {
+          if (textRotationInterval) clearInterval(textRotationInterval);
+        }
       });
       
       callBackend('saveTime', { timeStr: timeStr, deviceID: myDeviceID, rowKey: globalRowKey }, function(res) {
@@ -566,12 +672,12 @@
         if(res && res.success) {
           Swal.fire({ 
             icon: 'success',
-            title: 'เซฟแล้วนะ!',
+            title: 'บันทึกสำเร็จ!',
             text: `ส่งผลการจับเวลา ${timeStr} วินาที เรียบร้อย`,
             allowOutsideClick: false,
             allowEscapeKey: false,
             confirmButtonColor: '#dc2626',
-            confirmButtonText: '❌ ปิดหน้าจอด้วยนะ'
+            confirmButtonText: '❌ ปิดหน้าจอกลับสู่ AppSheet'
           }).then((result) => { if (result.isConfirmed) { directClose(); } });
         } else {
           Swal.fire('เกิดข้อผิดพลาด', res ? res.error : 'ไม่สามารถส่งข้อมูลได้', 'error');
