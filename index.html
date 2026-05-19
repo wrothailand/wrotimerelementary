@@ -200,7 +200,7 @@
   <div id="save-zone"></div>
 
   <div class="header-info">
-    <div class="version-tag">WRO 2026 OFFICIAL TIMER | V.2.7.0 HYBRID</div>
+    <div class="version-tag">WRO 2026 OFFICIAL TIMER | V.2.7.2 HYBRID</div>
     
     <div id="team-info-display" style="margin-top: 8px; min-height: 85px;">
       <div id="display-key">CHECKING ID</div>
@@ -538,11 +538,11 @@
       const timeStr = (elapsedTime / 1000).toFixed(2);
       Swal.fire({
         title: 'บันทึกเวลาแข่งขัน?',
-        text: `เวลาทีมชิ้นนี้คือ: ${timeStr} วินาที`,
+        text: `เวลาคือ: ${timeStr} วินาที`,
         icon: 'question',
         showCancelButton: true,
         confirmButtonColor: '#16a34a',
-        confirmButtonText: 'ใช่, บันทึกเลย',
+        confirmButtonText: 'ใช่, รอไรอะ',
         cancelButtonText: 'ยกเลิก'
       }).then((result) => { if (result.isConfirmed) saveToSheet(timeStr); });
     }
@@ -571,7 +571,7 @@
             allowOutsideClick: false,
             allowEscapeKey: false,
             confirmButtonColor: '#dc2626',
-            confirmButtonText: '❌ ปิดหน้าจอกด้วยนะ'
+            confirmButtonText: '❌ ปิดหน้าจอด้วยนะ'
           }).then((result) => { if (result.isConfirmed) { directClose(); } });
         } else {
           Swal.fire('เกิดข้อผิดพลาด', res ? res.error : 'ไม่สามารถส่งข้อมูลได้', 'error');
