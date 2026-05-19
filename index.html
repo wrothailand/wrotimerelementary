@@ -540,11 +540,11 @@
       const timeStr = (elapsedTime / 1000).toFixed(2);
       Swal.fire({
         title: 'บันทึกเวลาแข่งขัน?',
-        text: `เวลาทีมชิ้นนี้คือ: ${timeStr} วินาที`,
+        text: `เวลา: ${timeStr} วินาที`,
         icon: 'question',
         showCancelButton: true,
         confirmButtonColor: '#16a34a',
-        confirmButtonText: 'ใช่, กดเลยดิ',
+        confirmButtonText: 'ใช่, กดสิจ๊ะ',
         cancelButtonText: 'ยกเลิก'
       }).then((result) => { if (result.isConfirmed) saveToSheet(timeStr); });
     }
@@ -559,7 +559,7 @@
       }
       
       const loadingTexts = [
-        "กำลังส่งนะ รอแปบนึง...",
+        "กำลังส่งนะ รอหน่อยนะ...",
         "เน็ตอาจจะช้านิดนึง...",
         "รอน่าจะไม่เกิน 10 วินาที หรอกมั้ง...",
         "กำลังเซฟลง Google Sheets...",
