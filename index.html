@@ -1,9 +1,10 @@
 <!DOCTYPE html>
-<html>
+<html lang="th">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>WRO LAP TIMER HYBRID PRO</title>
+  <title>WRO LAP TIMER HYBRID PRO - NEUMORPHISM</title>
+  
   <!-- Google Fonts, SweetAlert2 & DotLottie Web Component -->
   <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&family=JetBrains+Mono:wght@600;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -11,14 +12,18 @@
   
   <style>
     :root {
-      --bg: #f1f5f9;
-      --card: #ffffff;
-      --primary: #0284c7;
+      /* Neumorphism Core Colors */
+      --bg: #e0e5ec;
+      --shadow-light: #ffffff;
+      --shadow-dark: #a3b1c6;
+      
+      /* Text & Accent Colors */
+      --text-main: #4a5568;
+      --text-sub: #718096;
+      --primary: #3b82f6;
       --warning: #f59e0b;
-      --success: #16a34a;
-      --danger: #dc2626;
-      --text-main: #0f172a;
-      --text-sub: #334155;
+      --success: #10b981;
+      --danger: #ef4444;
     }
 
     * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
@@ -36,239 +41,328 @@
       overflow: hidden;
     }
 
+    /* วัตถุนูนขึ้น (Protruding) */
+    .neu-flat {
+      background-color: var(--bg);
+      box-shadow: 9px 9px 16px var(--shadow-dark), 
+                 -9px -9px 16px var(--shadow-light);
+      border: none;
+      transition: all 0.2s ease-in-out;
+    }
+
+    /* วัตถุบุ๋มลง (Indented / Pressed) */
+    .neu-pressed {
+      background-color: var(--bg);
+      box-shadow: inset 6px 6px 10px 0 rgba(163, 177, 198, 0.7), 
+                  inset -6px -6px 10px 0 rgba(255, 255, 255, 0.8);
+      border: none;
+    }
+
+    /* Hover & Active states สำหรับปุ่ม */
+    button.neu-flat:active {
+      box-shadow: inset 4px 4px 8px 0 rgba(163, 177, 198, 0.7), 
+                  inset -4px -4px 8px 0 rgba(255, 255, 255, 0.8);
+    }
+    button.neu-flat:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light);
+    }
+
     .container {
-      width: 95%;
-      max-width: 500px;
+      width: 92%;
+      max-width: 450px;
       height: 90vh;
-      background: var(--card);
-      padding: 1.5rem 1.5rem;
-      border-radius: 12px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      background: var(--bg);
+      padding: 2rem 1.5rem;
+      border-radius: 40px; /* มุมโค้งมนมากขึ้น */
       text-align: center;
       display: flex;
       flex-direction: column;
       justify-content: space-between;
       position: relative;
-      border: 1px solid #cbd5e1;
     }
 
     .header-info { margin-top: 0.2rem; }
-    .version-tag { font-size: 0.75rem; color: var(--text-sub); font-weight:600; opacity: 0.7; letter-spacing: 1px; }
+    .version-tag { 
+      font-size: 0.75rem; color: var(--text-sub); 
+      font-weight: 600; letter-spacing: 2px; 
+    }
+
+    #team-info-display {
+      margin-top: 15px; 
+      min-height: 85px;
+      padding: 15px;
+      border-radius: 20px;
+    }
+
+    #display-team-name { 
+      font-size: 1.4rem; font-weight: 700; color: var(--text-main); 
+      line-height: 1.2; margin-top: 8px; 
+    }
+    
+    #display-key { 
+      font-size: 0.85rem; font-weight: 700; color: var(--primary); 
+      display: inline-block; padding: 4px 14px; 
+      border-radius: 20px;
+    }
+
+    .timer-display {
+      font-size: clamp(4.5rem, 20vw, 7.5rem);
+      font-weight: 800;
+      font-family: 'JetBrains Mono', monospace;
+      color: var(--text-main);
+      margin: 1rem 0;
+      transition: color 0.2s ease;
+      display: inline-block;
+      width: 100%;
+      text-shadow: 2px 2px 4px rgba(163,177,198,0.3);
+    }
+    
+    .timer-display.counting { color: var(--primary); }
+    .timer-display.warning-active {
+      color: var(--danger);
+      animation: pulseText 1.5s infinite;
+    }
+
+    @keyframes pulseText {
+      0% { text-shadow: 0 0 10px rgba(239, 68, 68, 0.2); transform: scale(1); }
+      50% { text-shadow: 0 0 20px rgba(239, 68, 68, 0.6); transform: scale(1.02); }
+      100% { text-shadow: 0 0 10px rgba(239, 68, 68, 0.2); transform: scale(1); }
+    }
+
+    .progress-container {
+      width: 100%; height: 16px; 
+      border-radius: 20px; overflow: hidden; margin-bottom: 1.5rem;
+    }
+    #progress-bar { 
+      width: 0%; height: 100%; 
+      background: linear-gradient(90deg, #60a5fa, var(--primary)); 
+      border-radius: 20px;
+      box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+      transition: width 0.1s linear, background 0.3s;
+    }
+    #progress-bar.warning-active { 
+      background: linear-gradient(90deg, #f87171, var(--danger)); 
+    }
+
+    .btn-setting { 
+      color: var(--text-sub);
+      padding: 8px 18px; border-radius: 20px; font-size: 0.85rem;
+      cursor: pointer; margin-bottom: 0.5rem;
+      font-family: 'Kanit'; font-weight: 600;
+    }
 
     #save-zone {
-      min-height: 45px;
+      min-height: 55px;
       display: flex;
       justify-content: center;
       align-items: center;
       margin-top: 5px;
     }
+
+    /* สไตล์ปุ่มหลัก (ปรับให้เข้ากับ Neumorphism ผ่าน JS) */
+    .neu-action-btn {
+      width: 100%; padding: 1.4rem;
+      font-size: 1.8rem; font-weight: 700; border-radius: 25px;
+      cursor: pointer; 
+      font-family: 'Kanit'; 
+      letter-spacing: 2px;
+    }
+    
+    .text-primary { color: var(--primary); }
+    .text-warning { color: var(--warning); }
+    .text-success { color: var(--success); }
+    .text-danger { color: var(--danger); }
+
     .btn-save-top {
-      background: var(--success);
-      color: white;
-      border: none;
-      padding: 8px 24px;
+      padding: 10px 24px;
       font-size: 1rem;
       font-weight: 700;
-      border-radius: 20px;
+      border-radius: 25px;
       cursor: pointer;
-      box-shadow: 0 4px 12px rgba(22, 163, 74, 0.3);
-      animation: pulseGlow 1.5s infinite;
+      color: var(--success);
       font-family: 'Kanit';
     }
 
-    .timer-display {
-      font-size: clamp(5rem, 22vw, 8.5rem);
-      font-weight: 800;
-      font-family: 'JetBrains Mono', monospace;
-      color: var(--text-main);
-      margin: 0.2rem 0;
-      transition: color 0.1s ease;
-      display: inline-block;
-      width: 100%;
-    }
-    
-    .timer-display.counting { color: var(--primary); }
-    
-    .timer-display.warning-active {
-      color: var(--danger);
-      animation: pulseGlow 1.5s infinite;
-    }
-
-    @keyframes pulseGlow {
-      0% { transform: scale(1); filter: drop-shadow(0 2px 4px rgba(220, 38, 38, 0.2)); }
-      50% { transform: scale(1.04); filter: drop-shadow(0 8px 16px rgba(220, 38, 38, 0.4)); }
-      100% { transform: scale(1); filter: drop-shadow(0 2px 4px rgba(220, 38, 38, 0.2)); }
-    }
-
-    .progress-container {
-      width: 100%; height: 12px; background: #e2e8f0;
-      border-radius: 4px; overflow: hidden; margin-bottom: 1rem;
-    }
-    #progress-bar { 
-      width: 0%; height: 100%; background: var(--primary); 
-      border-radius: 4px;
-    }
-    #progress-bar.warning-active { background: var(--danger); }
-
-    .btn-setting { 
-      background: #e2e8f0; border: none; color: var(--text-main);
-      padding: 6px 14px; border-radius: 4px; font-size: 0.85rem;
-      cursor: pointer; margin-bottom: 0.5rem; transition: 0.2s;
-      font-family: 'Kanit'; font-weight: 600;
-    }
-
-    .action-btn-style {
-      width: 100%; border: none; padding: 1.4rem;
-      font-size: 2rem; font-weight: 700; border-radius: 8px;
-      cursor: pointer; transition: transform 0.1s ease, background-color 0.2s;
-      font-family: 'Kanit'; color: white;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
-    .action-btn-style:active { transform: scale(0.97); }
-
-    .btn-start { background: var(--primary); }
-    .btn-pause { background: var(--warning); }
-    
     .control-grid-bottom {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 12px;
+      gap: 20px;
       width: 100%;
-      margin-top: 12px;
+      margin-top: 20px;
     }
     .btn-bottom-style {
-      border: 1px solid #cbd5e1; padding: 0.6rem; border-radius: 6px;
-      cursor: pointer; font-family: 'Kanit'; background: white; color: var(--text-sub);
-      font-weight: 600; transition: 0.2s; font-size: 0.95rem;
+      padding: 1rem; border-radius: 15px;
+      cursor: pointer; font-family: 'Kanit'; color: var(--text-main);
+      font-weight: 600; font-size: 0.95rem;
     }
-    .btn-bottom-style:hover { background: #f8fafc; }
-    .btn-reset-danger:hover { background: #fef2f2; color: var(--danger); border-color: #fca5a5; }
 
     .footer-credit {
-      margin-top: 0.8rem; font-size: 0.85rem; color: var(--text-sub);
+      margin-top: 1.5rem; font-size: 0.8rem; color: var(--text-sub);
       letter-spacing: 1px; font-weight: 400;
     }
     .footer-credit b { color: var(--primary); font-weight: 700; }
 
     .modal { 
       display: none; position: fixed; inset: 0; 
-      background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(4px);
+      background: rgba(224, 229, 236, 0.7); backdrop-filter: blur(8px);
       z-index: 1000; justify-content: center; align-items: center; 
     }
     .modal-content { 
-      background: white; padding: 2rem; border-radius: 12px;
-      width: 90%; max-width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+      padding: 2.5rem; border-radius: 30px;
+      width: 90%; max-width: 400px;
       text-align: left;
     }
 
-    .switch { position: relative; display: inline-block; width: 44px; height: 24px; }
+    .modal-content h3 {
+      margin-top: 0; color: var(--text-main); 
+      padding-bottom: 15px; font-weight: 700;
+      text-align: center;
+    }
+
+    .setting-group input {
+      width: 100%; padding: 12px 15px; 
+      border-radius: 15px; font-size: 1rem; outline: none;
+      color: var(--text-main); font-family: 'Kanit';
+      margin-top: 5px;
+    }
+
+    /* Toggle Switch แบบ Neumorphism */
+    .switch { position: relative; display: inline-block; width: 50px; height: 26px; }
     .switch input { opacity: 0; width: 0; height: 0; }
     .slider { 
-      position: absolute; cursor: pointer; inset: 0; background-color: #cbd5e1; 
-      transition: .3s; border-radius: 24px; 
+      position: absolute; cursor: pointer; inset: 0; 
+      border-radius: 26px; transition: .3s;
     }
     .slider:before { 
       position: absolute; content: ""; height: 18px; width: 18px; 
-      left: 3px; bottom: 3px; background-color: white; transition: .3s; border-radius: 50%; 
+      left: 4px; bottom: 4px; background-color: var(--bg); 
+      transition: .3s; border-radius: 50%; 
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.2);
     }
-    input:checked + .slider { background-color: var(--primary); }
-    input:checked + .slider:before { transform: translateX(20px); }
-
-    #display-team-name { font-size: 1.5rem; font-weight: 700; color: var(--text-main); line-height: 1.2; margin-top: 5px; }
-    #display-key { font-size: 0.9rem; font-weight: 700; color: var(--primary); background: #e0f2fe; display: inline-block; padding: 2px 12px; border-radius: 4px; }
+    input:checked + .slider { box-shadow: inset 4px 4px 8px rgba(163,177,198,0.7), inset -4px -4px 8px rgba(255,255,255,0.8); }
+    input:checked + .slider:before { transform: translateX(24px); background-color: var(--primary); }
 
     .history-item { 
-      border-radius: 6px; margin-bottom: 6px; padding: 12px !important; 
-      display: flex; justify-content: space-between; background: #f8fafc; 
-      border-left: 5px solid var(--primary) !important; border: 1px solid #e2e8f0;
+      border-radius: 15px; margin-bottom: 12px; padding: 15px !important; 
+      display: flex; justify-content: space-between; align-items: center;
     }
-    #history-list::-webkit-scrollbar { width: 6px; }
-    #history-list::-webkit-scrollbar-track { background: #f1f5f9; }
-    #history-list::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+    #history-list::-webkit-scrollbar { width: 0; display: none; }
 
-    /* โซนจัดวางอนิเมชัน Lottie ให้อยู่กึ่งกลางสวยงาม */
     .lottie-loading-wrapper {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center;
     }
     .loading-cute-text {
-      font-family: 'Kanit'; font-size: 1.05rem; color: #334155;
+      font-family: 'Kanit'; font-size: 1.05rem; color: var(--text-main);
       font-weight: 600; margin-top: 5px; text-align: center;
       min-height: 26px; transition: opacity 0.3s ease;
     }
+
+    /* แทรกแซง SweetAlert ให้ออกมาเป็น Neumorphism */
+    div:where(.swal2-container) div:where(.swal2-popup) {
+      background: var(--bg) !important;
+      border-radius: 30px !important;
+      box-shadow: 15px 15px 30px var(--shadow-dark), -15px -15px 30px var(--shadow-light) !important;
+      color: var(--text-main) !important;
+    }
+    div:where(.swal2-container) button:where(.swal2-styled) {
+      background: var(--bg) !important;
+      color: var(--text-main) !important;
+      border-radius: 20px !important;
+      box-shadow: 5px 5px 10px var(--shadow-dark), -5px -5px 10px var(--shadow-light) !important;
+      border: none !important;
+      font-family: 'Kanit' !important;
+      font-weight: 600 !important;
+    }
+    div:where(.swal2-container) button:where(.swal2-styled):active {
+      box-shadow: inset 4px 4px 8px var(--shadow-dark), inset -4px -4px 8px var(--shadow-light) !important;
+    }
+    div:where(.swal2-container) h2:where(.swal2-title) { color: var(--text-main) !important; }
+    div:where(.swal2-container) div:where(.swal2-html-container) { color: var(--text-sub) !important; }
 
     @media (min-height: 800px) { .container { height: 740px; } }
   </style>
 </head>
 <body>
 
-<div class="container">
+<div class="container neu-flat">
   <div id="save-zone"></div>
 
   <div class="header-info">
-    <div class="version-tag">WRO 2026 OFFICIAL TIMER | V.2.9.0 LOTTIE</div>
+    <div class="version-tag">WRO 2026 OFFICIAL TIMER | V.2.9.0 </div>
     
-    <div id="team-info-display" style="margin-top: 8px; min-height: 85px;">
-      <div id="display-key">CHECKING ID</div>
+    <div id="team-info-display" class="neu-pressed">
+      <div id="display-key" class="neu-flat">CHECKING ID</div>
       <div id="display-team-name">กำลังโหลดข้อมูล...</div>
       <div id="display-institution" style="font-size: 0.95rem; color: var(--text-sub); margin-top: 4px; font-weight: 500;">PLEASE WAIT</div>
     </div>
   </div>
 
-  <div>
-    <button class="btn-setting" id="settingBtn" onclick="openSettings()">LIMIT: 120.00s ⚙️</button>
+  <div style="margin-top: 10px;">
+    <button class="neu-flat btn-setting" id="settingBtn" onclick="openSettings()">LIMIT: 120.00s ⚙️</button>
     <div class="timer-display" id="display">0.00</div>
-    <div class="progress-container"><div id="progress-bar"></div></div>
+    <div class="progress-container neu-pressed">
+      <div id="progress-bar"></div>
+    </div>
   </div>
 
   <div style="width: 100%;">
     <div id="action-controller">
-      <button id="actionBtn" class="action-btn-style btn-start" onclick="handleAction()">START</button>
+      <!-- ปุ่มเปลี่ยนเป็นใช้ Class ของ Neumorphism -->
+      <button id="actionBtn" class="neu-flat neu-action-btn text-primary" onclick="handleAction()">START</button>
     </div>
 
     <div class="control-grid-bottom">
-      <button class="btn-bottom-style" onclick="showHistory()">HISTORY 📋</button>
-      <button class="btn-bottom-style btn-reset-danger" onclick="confirmReset()">RESET 🔄</button>
+      <button class="neu-flat btn-bottom-style" onclick="showHistory()">HISTORY 📋</button>
+      <button class="neu-flat btn-bottom-style text-danger" onclick="confirmReset()">RESET 🔄</button>
     </div>
 
     <div class="footer-credit">CREATE BY <b>GOZAMA</b></div>
   </div>
 </div>
 
-  <!-- Modal Settings -->
   <div id="settingModal" class="modal">
-    <div class="modal-content">
-      <h3 style="margin-top: 0; color: var(--text-main); border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; font-weight: 700;">ตั้งค่านาฬิกา</h3>
+    <div class="modal-content neu-flat">
+      <h3>ตั้งค่านาฬิกา</h3>
+      
       <div class="setting-group" style="margin-top: 15px;">
         <label style="display: block; font-size: 0.9rem; color: var(--text-sub); margin-bottom: 6px; font-weight:600;">เวลาแข่งขัน (วินาที)</label>
-        <input type="number" id="setLimit" value="120" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 1rem; outline: none;">
+        <input type="number" id="setLimit" value="120" class="neu-pressed">
       </div>
-      <div style="display: flex; justify-content: space-between; align-items: center; margin: 15px 0;">
+      
+      <div style="display: flex; justify-content: space-between; align-items: center; margin: 20px 0;">
         <span style="font-size: 0.95rem; font-weight:600; color: var(--text-main);">นับถอยหลังก่อนเริ่ม (3 วินาที)</span>
-        <label class="switch"><input type="checkbox" id="setCountdown"><span class="slider"></span></label>
+        <label class="switch">
+          <input type="checkbox" id="setCountdown">
+          <span class="slider neu-pressed"></span>
+        </label>
       </div>
-      <div style="border-top: 1px solid #e2e8f0; margin: 15px 0;"></div>
-      <div class="setting-group">
+      
+      <div class="setting-group" style="margin-top: 20px;">
         <label style="display: block; font-size: 0.9rem; color: var(--text-sub); margin-bottom: 6px; font-weight:600;">เตือนช่วงท้าย (วินาทีที่เหลือ)</label>
-        <input type="number" id="setWarnAt" value="10" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 1rem; outline: none;">
+        <input type="number" id="setWarnAt" value="10" class="neu-pressed">
       </div>
-      <div style="display: flex; justify-content: space-between; align-items: center; margin: 15px 0;">
+      
+      <div style="display: flex; justify-content: space-between; align-items: center; margin: 20px 0;">
         <span style="font-size: 0.95rem; font-weight:600; color: var(--text-main);">เสียงเตือนล่วงหน้า</span>
-        <label class="switch"><input type="checkbox" id="setWarning" checked><span class="slider"></span></label>
+        <label class="switch">
+          <input type="checkbox" id="setWarning" checked>
+          <span class="slider neu-pressed"></span>
+        </label>
       </div>
-      <button class="btn-start" style="width:100%; margin-top:10px; padding:12px; font-size: 1.1rem; border-radius: 6px; border:none; color:white; font-weight:700; cursor:pointer;" onclick="saveSettings()">บันทึกการตั้งค่า</button>
-      <button class="btn-bottom-style" style="width: 100%; margin-top: 8px; background: #64748b; color: white;" onclick="document.getElementById('settingModal').style.display='none'">ยกเลิก</button>
+      
+      <button class="neu-flat" style="width:100%; margin-top:15px; padding:15px; font-size: 1.1rem; border-radius: 20px; color:var(--primary); font-family: 'Kanit'; font-weight:700; cursor:pointer;" onclick="saveSettings()">บันทึกการตั้งค่า</button>
+      <button class="neu-flat" style="width: 100%; margin-top: 15px; padding:12px; border-radius: 20px; font-family: 'Kanit'; color: var(--text-sub); cursor:pointer;" onclick="document.getElementById('settingModal').style.display='none'">ยกเลิก</button>
     </div>
   </div>
 
-  <!-- Modal History -->
   <div id="history-modal" class="modal" onclick="this.style.display='none'">
-    <div class="modal-content" onclick="event.stopPropagation()" style="max-width: 450px;">
-      <h3 style="margin-top: 0; margin-bottom:15px; color: var(--text-main); font-weight: 700;">ประวัติการบันทึก (เครื่องนี้)</h3>
-      <div id="history-list" style="max-height: 45vh; overflow-y: auto; padding-right: 5px;"></div>
-      <button class="btn-bottom-style" style="width: 100%; margin-top: 20px; background: #64748b; color: white;" onclick="document.getElementById('history-modal').style.display='none'">ปิดหน้าต่าง</button>
+    <div class="modal-content neu-flat" onclick="event.stopPropagation()" style="max-width: 450px;">
+      <h3>ประวัติการบันทึก (เครื่องนี้)</h3>
+      <div id="history-list" style="max-height: 45vh; overflow-y: auto; padding-right: 5px; padding-top: 10px;"></div>
+      <button class="neu-flat" style="width: 100%; margin-top: 25px; padding:15px; border-radius: 20px; font-family: 'Kanit'; color: var(--text-sub); cursor:pointer; font-weight: 600;" onclick="document.getElementById('history-modal').style.display='none'">ปิดหน้าต่าง</button>
     </div>
   </div>
 
@@ -330,9 +424,6 @@
       }, 200);
     }
 
-    // ==========================================
-    // HYBRID CORE ENGINE
-    // ==========================================
     const isGoogleEnv = (typeof google !== 'undefined' && google.script && google.script.run);
 
     function callBackend(action, params, callback) {
@@ -370,32 +461,30 @@
       }
     }
 
-    // ==========================================
-    // STATE MACHINE & CONTROLLER RENDERING
-    // ==========================================
     function renderButtonUI() {
       const mainController = document.getElementById('action-controller');
       const saveZone = document.getElementById('save-zone');
       
+      // อัปเดต Class เป็นของ Neumorphism โดยใช้สีตัวอักษรแทนสีพื้นหลัง
       if (state === "IDLE") {
-        mainController.innerHTML = `<button id="actionBtn" class="action-btn-style btn-start" onclick="handleAction()">START</button>`;
+        mainController.innerHTML = `<button id="actionBtn" class="neu-flat neu-action-btn text-primary" onclick="handleAction()">START</button>`;
         saveZone.innerHTML = "";
       } 
       else if (state === "COUNTING") {
-        mainController.innerHTML = `<button id="actionBtn" class="action-btn-style btn-start" style="opacity: 0.5; cursor: not-allowed;" disabled>COUNTDOWN</button>`;
+        mainController.innerHTML = `<button id="actionBtn" class="neu-pressed neu-action-btn text-sub" style="opacity: 0.5; cursor: not-allowed;" disabled>COUNTDOWN</button>`;
         saveZone.innerHTML = "";
       } 
       else if (state === "RUNNING") {
-        mainController.innerHTML = `<button id="actionBtn" class="action-btn-style btn-pause" onclick="pauseRunning()">PAUSE / STOP</button>`;
+        mainController.innerHTML = `<button id="actionBtn" class="neu-pressed neu-action-btn text-warning" onclick="pauseRunning()">PAUSE / STOP</button>`;
         saveZone.innerHTML = "";
       } 
       else if (state === "PAUSED") {
-        mainController.innerHTML = `<button id="actionBtn" class="action-btn-style btn-start" onclick="resumeRunning()">RESUME</button>`;
-        saveZone.innerHTML = `<button class="btn-save-top" onclick="confirmSave()">💾 SAVE RESULT</button>`;
+        mainController.innerHTML = `<button id="actionBtn" class="neu-flat neu-action-btn text-primary" onclick="resumeRunning()">RESUME</button>`;
+        saveZone.innerHTML = `<button class="neu-flat btn-save-top" onclick="confirmSave()"><i class="fa-solid fa-floppy-disk"></i> SAVE RESULT</button>`;
       } 
       else if (state === "FINISHED") {
-        mainController.innerHTML = `<button id="actionBtn" class="action-btn-style btn-start" style="opacity: 0.4; cursor:not-allowed;" disabled>TIME OVER</button>`;
-        saveZone.innerHTML = `<button class="btn-save-top" onclick="confirmSave()">💾 SAVE RESULT</button>`;
+        mainController.innerHTML = `<button id="actionBtn" class="neu-pressed neu-action-btn" style="opacity: 0.4; cursor:not-allowed;" disabled>TIME OVER</button>`;
+        saveZone.innerHTML = `<button class="neu-flat btn-save-top" onclick="confirmSave()"><i class="fa-solid fa-floppy-disk"></i> SAVE RESULT</button>`;
       }
     }
 
@@ -543,15 +632,13 @@
         text: `เวลา: ${timeStr} วินาที`,
         icon: 'question',
         showCancelButton: true,
-        confirmButtonColor: '#16a34a',
+        confirmButtonColor: 'var(--success)', /* ใช้สีตัวแปร css ใน sweetalert */
         confirmButtonText: 'ใช่, กดสิจ๊ะ',
-        cancelButtonText: 'ยกเลิก'
+        cancelButtonText: 'ยกเลิก',
+        customClass: { confirmButton: 'neu-flat text-success', cancelButton: 'neu-flat' }
       }).then((result) => { if (result.isConfirmed) saveToSheet(timeStr); });
     }
 
-    // ==========================================
-    // INTEGRATED LOTTIE ANIMATION LOADING
-    // ==========================================
     function saveToSheet(timeStr) {
       if (!globalRowKey) { 
         Swal.fire('Error', 'ไม่พบข้อมูล ID ทีมใน URL ลิงก์', 'error');
@@ -566,7 +653,6 @@
         "เซฟเสร็จละ ก็บอกแล้วแปบเดียว..."
       ];
       
-      // เรียกหน้าต่างโหลดดิ้งและฝังคอมโพเนนต์ <dotlottie-wc> ของคุณลงไปโดยตรง
       Swal.fire({
         html: `
           <div class="lottie-loading-wrapper">
@@ -610,8 +696,8 @@
             text: `ผลการจับเวลา ${timeStr} วินาที เรียบร้อย`,
             allowOutsideClick: false,
             allowEscapeKey: false,
-            confirmButtonColor: '#dc2626',
-            confirmButtonText: '❌ กดปิดหน้าจอสิ'
+            confirmButtonText: '❌ กดปิดหน้าจอสิ',
+            customClass: { confirmButton: 'neu-flat text-danger' }
           }).then((result) => { if (result.isConfirmed) { directClose(); } });
         } else {
           Swal.fire('เกิดข้อผิดพลาด', res ? res.error : 'ไม่สามารถส่งข้อมูลได้', 'error');
@@ -620,13 +706,18 @@
     }
 
     function confirmReset() {
-      Swal.fire({ title: 'Reset เวลา?', text: 'กระบวนการนี้จะล้างเวลาปัจจุบันทิ้งทั้งหมด', icon: 'warning', showCancelButton: true, confirmButtonColor: '#dc2626', confirmButtonText: 'ใช่, รีเซ็ต' })
+      Swal.fire({ 
+        title: 'Reset เวลา?', 
+        text: 'กระบวนการนี้จะล้างเวลาปัจจุบันทิ้งทั้งหมด', 
+        icon: 'warning', 
+        showCancelButton: true, 
+        confirmButtonText: 'ใช่, รีเซ็ต',
+        cancelButtonText: 'ยกเลิก',
+        customClass: { confirmButton: 'neu-flat text-danger', cancelButton: 'neu-flat' }
+      })
       .then((result) => { if (result.isConfirmed) reset(); });
     }
 
-    // ==========================================
-    // INITIALIZATION & CONFIG CODES
-    // ==========================================
     function openSettings() { 
       document.getElementById('setLimit').value = CONFIG.limit;
       document.getElementById('setCountdown').checked = CONFIG.useCountdown;
@@ -666,7 +757,7 @@
           return;
         }
         list.innerHTML = data.map(item => `
-          <div class="history-item">
+          <div class="history-item neu-pressed">
             <div style="text-align:left">
               <div style="font-size:0.9rem; color:var(--text-sub); font-weight:600;">
                 ${item.date} | <span style="color:var(--primary); font-weight:bold;">ID: ${item.team}</span>
