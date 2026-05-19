@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>WRO LAP TIMER PRO</title>
+  <title>WRO LAP TIMER HYBRID PRO</title>
   <!-- Google Fonts & SweetAlert2 -->
   <link href="https://fonts.googleapis.com/css2?family=Kanit:wght@400;600;700&family=JetBrains+Mono:wght@600;800&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -15,8 +15,8 @@
       --primary: #0284c7;
       --success: #16a34a;
       --danger: #dc2626;
-      --text-main: #0f172a; /* ปรับฟอนต์สีเข้มชัดเจน */
-      --text-sub: #334155;  /* ปรับฟอนต์สีเข้มชัดเจน */
+      --text-main: #0f172a;
+      --text-sub: #334155;
       --glow: rgba(2, 132, 199, 0.15);
     }
 
@@ -41,7 +41,7 @@
       height: 90vh;
       background: var(--card);
       padding: 2rem 1.5rem;
-      border-radius: 12px; /* ลดความมนเพื่อให้ดูมีเหลี่ยมมากขึ้นตามต้องการ */
+      border-radius: 12px;
       box-shadow: 0 10px 30px rgba(0,0,0,0.08);
       text-align: center;
       display: flex;
@@ -85,7 +85,7 @@
 
     #actionBtn {
       width: 100%; border: none; padding: 1.5rem;
-      font-size: 2rem; font-weight: 700; border-radius: 8px; /* ลดความมนลง */
+      font-size: 2rem; font-weight: 700; border-radius: 8px;
       cursor: pointer; transition: transform 0.1s ease;
       font-family: 'Kanit'; color: white; margin-bottom: 1rem;
     }
@@ -98,7 +98,7 @@
 
     .secondary-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; }
     .btn-sub { 
-      border: 2px solid #cbd5e1; padding: 0.8rem; border-radius: 8px; /* ลดความมนลง */
+      border: 2px solid #cbd5e1; padding: 0.8rem; border-radius: 8px;
       cursor: pointer; font-family: 'Kanit'; background: white; color: var(--text-main);
       font-weight: 600; transition: 0.2s; font-size: 1rem;
     }
@@ -116,7 +116,7 @@
       z-index: 1000; justify-content: center; align-items: center; 
     }
     .modal-content { 
-      background: white; padding: 2rem; border-radius: 12px; /* ลดความมนลง */
+      background: white; padding: 2rem; border-radius: 12px;
       width: 90%; max-width: 400px; box-shadow: 0 20px 40px rgba(0,0,0,0.2);
       text-align: left;
     }
@@ -153,9 +153,8 @@
 
 <div class="container">
   <div class="header-info">
-    <div class="version-tag">SYSTEM VERSION 2.6.0 PRO</div>
+    <div class="version-tag">SYSTEM VERSION 2.6.5 HYBRID PRO</div>
     
-    <!-- ย้าย ID ทีมขึ้นมาอยู่ด้านบนชื่อทีมตามที่แจ้ง -->
     <div id="team-info-display" style="margin-top: 12px; min-height: 90px;">
       <div id="display-key">CHECKING ID</div>
       <div id="display-team-name">กำลังโหลดข้อมูล...</div>
@@ -183,29 +182,23 @@
   <div id="settingModal" class="modal">
     <div class="modal-content">
       <h3 style="margin-top: 0; color: var(--text-main); border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; font-weight: 700;">ตั้งค่านาฬิกา</h3>
-      
       <div class="setting-group" style="margin-top: 15px;">
         <label style="display: block; font-size: 0.9rem; color: var(--text-sub); margin-bottom: 6px; font-weight:600;">เวลาแข่งขัน (วินาที)</label>
         <input type="number" id="setLimit" value="120" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 1rem; outline: none;">
       </div>
-
       <div style="display: flex; justify-content: space-between; align-items: center; margin: 15px 0;">
         <span style="font-size: 0.95rem; font-weight:600; color: var(--text-main);">นับถอยหลังก่อนเริ่ม (3 วินาที)</span>
         <label class="switch"><input type="checkbox" id="setCountdown"><span class="slider"></span></label>
       </div>
-
       <div style="border-top: 1px solid #e2e8f0; margin: 15px 0;"></div>
-      
       <div class="setting-group">
         <label style="display: block; font-size: 0.9rem; color: var(--text-sub); margin-bottom: 6px; font-weight:600;">เตือนช่วงท้าย (วินาทีที่เหลือ)</label>
         <input type="number" id="setWarnAt" value="10" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 1rem; outline: none;">
       </div>
-
       <div style="display: flex; justify-content: space-between; align-items: center; margin: 15px 0;">
         <span style="font-size: 0.95rem; font-weight:600; color: var(--text-main);">เสียงเตือนล่วงหน้า</span>
         <label class="switch"><input type="checkbox" id="setWarning" checked><span class="slider"></span></label>
       </div>
-
       <button class="btn-start" style="width:100%; margin-top:10px; padding:12px; font-size: 1.1rem; border-radius: 6px; border:none; color:white; font-weight:700; cursor:pointer;" onclick="saveSettings()">บันทึกการตั้งค่า</button>
       <button class="btn-sub" style="width: 100%; margin-top: 8px;" onclick="document.getElementById('settingModal').style.display='none'">ยกเลิก</button>
     </div>
@@ -221,8 +214,14 @@
   </div>
 
   <script>
-    let globalRowKey = ""; 
+    // ==========================================
+    // CRITICAL HYBRID CONFIGURATION
+    // นำ URL Web App (ที่ได้จากการ Deploy ใน Apps Script) มาวางที่นี่
+    // สำคัญมาก: ตัวแปรนี้จะถูกเรียกใช้เฉพาะเวลาที่เอาไปเปิดรันบน GitHub Pages
+    // ==========================================
+    const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw-5W0x3pSIlwE-vCUNOai_mJzQaEZ3gRLhsddK67Dwv3qVWO6qK-qu7U2CGWMUCRe-sQ/exec"; 
 
+    let globalRowKey = ""; 
     let CONFIG = {
       limit: parseFloat(localStorage.getItem('cfg_limit')) || 120,
       useCountdown: localStorage.getItem('cfg_useCountdown') === 'true',
@@ -258,20 +257,62 @@
       document.querySelectorAll('.btn-sub').forEach(btn => btn.disabled = isDisable);
     }
 
-    // ฟังก์ชันสั่งปิด Tab / เด้งกลับ AppSheet รองรับ Safari สมบูรณ์แบบ
+    // ฟังก์ชันสั่งปิดหน้ารองรับ Safari และการย้อนกลับของระบบ AppSheet เจนเนอเรชันใหม่
     function directClose() {
       window.open('', '_self', ''); 
       window.close(); 
       if (navigator.app && navigator.app.exitApp) navigator.app.exitApp();
       
       setTimeout(() => {
-        try {
-          window.top.location.href = "https://www.appsheet.com/newshortcut/52ba3d26-b43b-4443-80de-ffee50925d4e";
-        } catch(e) {
-          window.location.href = "https://www.appsheet.com/newshortcut/52ba3d26-b43b-4443-80de-ffee50925d4e";
-        }
+        const fallbackUrl = "https://www.appsheet.com/newshortcut/52ba3d26-b43b-4443-80de-ffee50925d4e";
+        try { window.top.location.href = fallbackUrl; } catch(e) { window.location.href = fallbackUrl; }
       }, 200);
     }
+
+    // ==========================================
+    // HYBRID CORE ENGINE (Auto Environment Switcher)
+    // ==========================================
+    const isGoogleEnv = (typeof google !== 'undefined' && google.script && google.script.run);
+
+    function callBackend(action, params, callback) {
+      if (isGoogleEnv) {
+        // โหมดดั้งเดิม: เปิดภายใน Google Apps Script Web App
+        if (action === 'getTeamInfo') {
+          google.script.run.withSuccessHandler(callback).getTeamInfo(params.rowKey);
+        } else if (action === 'saveTime') {
+          google.script.run.withSuccessHandler(callback).saveTime(params.timeStr, params.deviceID, params.rowKey);
+        } else if (action === 'getHistory') {
+          google.script.run.withSuccessHandler(callback).getHistory(params.deviceID);
+        }
+      } else {
+        // โหมด API Fetch: ปลอดภัยสูงเมื่อดึงจากภายนอก เช่น GitHub Pages
+        let url = `${GAS_WEB_APP_URL}?action=${action}`;
+        for (let key in params) {
+          url += `&${key}=${encodeURIComponent(params[key])}`;
+        }
+        fetch(url)
+          .then(res => res.json())
+          .then(data => callback(data))
+          .catch(err => {
+            console.error("API Error:", err);
+            Swal.fire('Error', 'การเชื่อมต่อฐานข้อมูลล้มเหลว โปรดตรวจสอบ URL Web App', 'error');
+            if(action === 'getTeamInfo') callback(null);
+          });
+      }
+    }
+
+    function getURLParameters(callback) {
+      if (isGoogleEnv) {
+        google.script.url.getLocation(function(location) {
+          let key = location.parameter.rowKey || (location.parameters && location.parameters.rowKey ? location.parameters.rowKey[0] : "");
+          callback(key);
+        });
+      } else {
+        const urlParams = new URLSearchParams(window.location.search);
+        callback(urlParams.get('rowKey') || "");
+      }
+    }
+    // ==========================================
 
     function handleAction() {
       if (state === "IDLE") {
@@ -284,10 +325,8 @@
     }
 
     function startCountdown() {
-      state = "COUNTING";
-      isCountingDown = true;
-      let count = 3;
-      setControlsEnabled(false);
+      state = "COUNTING"; isCountingDown = true;
+      let count = 3; setControlsEnabled(false);
       const btn = document.getElementById('actionBtn');
       const display = document.getElementById('display');
       btn.disabled = true; btn.style.opacity = "0.5";
@@ -307,8 +346,7 @@
     }
 
     function startRunning() {
-      state = "RUNNING";
-      setControlsEnabled(false);
+      state = "RUNNING"; setControlsEnabled(false);
       const btn = document.getElementById('actionBtn');
       btn.disabled = false; btn.style.opacity = "1";
       btn.innerText = "STOP"; btn.className = "btn-stop";
@@ -317,26 +355,19 @@
     }
 
     function stopRunning() {
-      state = "FINISHED";
-      clearInterval(timerInterval); timerInterval = null;
+      state = "FINISHED"; clearInterval(timerInterval); timerInterval = null;
       setControlsEnabled(true);
       const btn = document.getElementById('actionBtn');
       btn.innerText = "SAVE RESULT"; btn.className = "btn-save-mode";
-      
-      // บังคับให้หลอดเวลาเต็มร้อยละ 100% เสมอเมื่อหยุดหรือหมดเวลา
       displayTime(elapsedTime);
     }
 
     function update() {
-      const now = Date.now();
-      elapsedTime = now - startTime;
+      const now = Date.now(); elapsedTime = now - startTime;
       const limitMs = CONFIG.limit * 1000;
       
       if (elapsedTime >= limitMs) { 
-        elapsedTime = limitMs; 
-        stopRunning(); 
-        playBeep(440, 0.5); 
-        return;
+        elapsedTime = limitMs; stopRunning(); playBeep(440, 0.5); return;
       }
       
       const currentSec = Math.floor(elapsedTime / 1000);
@@ -345,31 +376,25 @@
       const progressBar = document.getElementById('progress-bar');
       
       if (CONFIG.useWarning && remainSec <= CONFIG.warnAt && state === "RUNNING") {
-        display.classList.add('warning-active');
-        progressBar.classList.add('warning-active');
+        display.classList.add('warning-active'); progressBar.classList.add('warning-active');
         if (currentSec !== lastBeepSecond && elapsedTime < limitMs) {
           playBeep(880, 0.1); lastBeepSecond = currentSec;
         }
       } else {
-        display.classList.remove('warning-active');
-        progressBar.classList.remove('warning-active');
+        display.classList.remove('warning-active'); progressBar.classList.remove('warning-active');
       }
       displayTime(elapsedTime);
     }
 
-    // แก้ไขระบบคำนวณหลอดเวลาให้ Match ตามเวลาที่ตั้งค่าจริงแบบ 100%
     function displayTime(ms) {
       document.getElementById('display').innerText = (ms / 1000).toFixed(2);
-      const totalLimitMs = CONFIG.limit * 1000;
-      const percentage = (ms / totalLimitMs) * 100;
+      const percentage = (ms / (CONFIG.limit * 1000)) * 100;
       document.getElementById('progress-bar').style.width = Math.min(percentage, 100) + "%";
     }
 
     function reset() {
-      state = "IDLE";
-      clearInterval(timerInterval); clearInterval(countdownInt);
-      timerInterval = null; countdownInt = null;
-      setControlsEnabled(true);
+      state = "IDLE"; clearInterval(timerInterval); clearInterval(countdownInt);
+      timerInterval = null; countdownInt = null; setControlsEnabled(true);
       elapsedTime = 0; lastBeepSecond = -1; isCountingDown = false;
       const btn = document.getElementById('actionBtn');
       btn.innerText = "START"; btn.className = "btn-start"; btn.disabled = false; btn.style.opacity = "1";
@@ -381,42 +406,31 @@
     function confirmSave() {
       const timeStr = (elapsedTime / 1000).toFixed(2);
       Swal.fire({
-        title: 'บันทึกเวลา?',
-        text: `เวลาที่จับได้: ${timeStr} วินาที`,
-        icon: 'question',
-        showCancelButton: true,
-        confirmButtonColor: '#0284c7',
-        confirmButtonText: 'บันทึก',
-        cancelButtonText: 'ยกเลิก'
+        title: 'บันทึกเวลา?', text: `เวลาที่จับได้: ${timeStr} วินาที`, icon: 'question',
+        showCancelButton: true, confirmButtonColor: '#0284c7', confirmButtonText: 'บันทึก', cancelButtonText: 'ยกเลิก'
       }).then((result) => { if (result.isConfirmed) saveToSheet(timeStr); });
     }
 
     function saveToSheet(timeStr) {
       const btn = document.getElementById('actionBtn');
       if (!globalRowKey) { 
-        Swal.fire('Error', 'ไม่พบข้อมูล ID ใน URL Link (โปรดเปิดลิงก์ผ่าน AppSheet)', 'error'); 
-        return; 
+        Swal.fire('Error', 'ไม่พบข้อมูล ID ทีมใน URL ลิงก์', 'error'); return; 
       }
       
       btn.innerText = "SAVING..."; btn.disabled = true;
-      google.script.run.withSuccessHandler((res) => {
-        if(res.success) {
+      
+      callBackend('saveTime', { timeStr: timeStr, deviceID: myDeviceID, rowKey: globalRowKey }, function(res) {
+        if(res && res.success) {
           Swal.fire({ 
-            icon: 'success', 
-            title: 'บันทึกสำเร็จ!', 
-            text: `บันทึกเวลา ${timeStr} วินาที เรียบร้อยแล้ว`, 
-            allowOutsideClick: false,
-            allowEscapeKey: false,
-            confirmButtonColor: '#dc2626',
-            confirmButtonText: '❌ ปิดหน้าจอกลับสู่ AppSheet'
-          }).then((result) => {
-            if (result.isConfirmed) { directClose(); }
-          });
+            icon: 'success', title: 'บันทึกสำเร็จ!', text: `บันทึกเวลา ${timeStr} วินาที เรียบร้อยแล้ว`, 
+            allowOutsideClick: false, allowEscapeKey: false,
+            confirmButtonColor: '#dc2626', confirmButtonText: '❌ ปิดหน้าจอกลับสู่ AppSheet'
+          }).then((result) => { if (result.isConfirmed) { directClose(); } });
         } else {
-          Swal.fire('เกิดข้อผิดพลาด', res.error, 'error');
+          Swal.fire('เกิดข้อผิดพลาด', res ? res.error : 'ไม่สามารถส่งข้อมูลได้', 'error');
           btn.innerText = "SAVE RESULT"; btn.disabled = false;
         }
-      }).saveTime(timeStr, myDeviceID, globalRowKey);
+      });
     }
 
     function confirmReset() {
@@ -457,7 +471,7 @@
       const list = document.getElementById('history-list');
       list.innerHTML = `<div style="padding:20px; opacity:0.5; text-align:center;">กำลังโหลดประวัติ...</div>`;
       
-      google.script.run.withSuccessHandler((data) => {
+      callBackend('getHistory', { deviceID: myDeviceID }, function(data) {
         if (!data || data.length === 0) {
           list.innerHTML = `<div style="padding:20px; opacity:0.5; text-align:center;">ไม่มีประวัติการบันทึกของเครื่องนี้</div>`;
           return;
@@ -472,11 +486,11 @@
             <b style="font-size:1.25rem; align-self:center; color:var(--text-main)">${item.time}s</b>
           </div>
         `).join('');
-      }).getHistory(myDeviceID);
+      });
     }
 
     function loadTeamInfo(rowKey) {
-      google.script.run.withSuccessHandler(function(info) {
+      callBackend('getTeamInfo', { rowKey: rowKey }, function(info) {
         if (info) {
           document.getElementById('display-key').innerText = "TEAM ID: " + info.key;
           document.getElementById('display-team-name').innerText = info.teamName || "ไม่พบชื่อทีม";
@@ -486,15 +500,14 @@
           document.getElementById('display-institution').innerText = "โปรดตรวจสอบฐานข้อมูลชีต";
           document.getElementById('display-key').innerText = "ID: " + rowKey;
         }
-      }).getTeamInfo(rowKey);
+      });
     }
 
     window.onload = function() {
       document.getElementById('settingBtn').innerText = `LIMIT: ${CONFIG.limit.toFixed(2)}s ⚙️`;
       
-      google.script.url.getLocation(function(location) {
-        globalRowKey = location.parameter.rowKey || location.parameters.rowKey[0] || "";
-        
+      getURLParameters(function(rowKey) {
+        globalRowKey = rowKey;
         if (globalRowKey) {
           loadTeamInfo(globalRowKey);
         } else {
