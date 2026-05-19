@@ -13,6 +13,7 @@
       --bg: #f1f5f9;
       --card: #ffffff;
       --primary: #0284c7;
+      --warning: #f59e0b;
       --success: #16a34a;
       --danger: #dc2626;
       --text-main: #0f172a;
@@ -83,20 +84,28 @@
       font-family: 'Kanit'; font-weight: 600;
     }
 
-    #actionBtn {
-      width: 100%; border: none; padding: 1.5rem;
-      font-size: 2rem; font-weight: 700; border-radius: 8px;
-      cursor: pointer; transition: transform 0.1s ease;
-      font-family: 'Kanit'; color: white; margin-bottom: 1rem;
+    /* สไตล์ปุ่มหลักแบบปรับปรุง */
+    .action-btn-style {
+      width: 100%; border: none; padding: 1.3rem;
+      font-size: 1.8rem; font-weight: 700; border-radius: 8px;
+      cursor: pointer; transition: transform 0.1s ease, background-color 0.2s;
+      font-family: 'Kanit'; color: white;
     }
+    .action-btn-style:active { transform: scale(0.97); }
 
     .btn-start { background: var(--primary); }
+    .btn-pause { background: var(--warning); }
     .btn-stop { background: var(--danger); }
     .btn-save-mode { background: var(--success); }
     
-    #actionBtn:active { transform: scale(0.97); }
+    .control-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      width: 100%;
+    }
 
-    .secondary-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; }
+    .secondary-controls { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; width: 100%; margin-top: 1rem; }
     .btn-sub { 
       border: 2px solid #cbd5e1; padding: 0.8rem; border-radius: 8px;
       cursor: pointer; font-family: 'Kanit'; background: white; color: var(--text-main);
@@ -136,8 +145,8 @@
 
     #display-team-name { font-size: 1.5rem; font-weight: 700; color: var(--text-main); line-height: 1.2; margin-top: 5px; }
     
-    /* ปรับขนาด Font ตรงนี้ให้เล็กลงตามบรีฟ (จาก 1.1rem -> 0.9rem) */
-    #display-key { font-size: 0.6rem; font-weight: 700; color: var(--primary); background: #e0f2fe; display: inline-block; padding: 2px 12px; border-radius: 4px; }
+    /* ปรับขนาดฟอนต์ ID ลงตามบรีฟก่อนหน้า (0.9rem) */
+    #display-key { font-size: 0.9rem; font-weight: 700; color: var(--primary); background: #e0f2fe; display: inline-block; padding: 2px 12px; border-radius: 4px; }
 
     .history-item { 
       border-radius: 6px; margin-bottom: 6px; padding: 12px !important; 
@@ -155,7 +164,7 @@
 
 <div class="container">
   <div class="header-info">
-    <div class="version-tag">SYSTEM VERSION 2.6.6 HYBRID PRO</div>
+    <div class="version-tag">WRO 2026 OFFICIAL TIMER | V.2.6.7 HYBRID</div>
     
     <div id="team-info-display" style="margin-top: 12px; min-height: 90px;">
       <div id="display-key">CHECKING ID</div>
@@ -171,7 +180,11 @@
   </div>
 
   <div style="width: 100%;">
-    <button id="actionBtn" class="btn-start" onclick="handleAction()">START</button>
+    <!-- พื้นที่สำหรับปุ่มควบคุมที่จะปรับเปลี่ยนตาม State แบบไดนามิก -->
+    <div id="action-controller">
+      <button id="actionBtn" class="action-btn-style btn-start" onclick="handleAction()">START</button>
+    </div>
+
     <div class="secondary-controls">
       <button class="btn-sub" onclick="confirmReset()">RESET</button>
       <button class="btn-sub" onclick="showHistory()">HISTORY</button>
@@ -215,10 +228,9 @@
     </div>
   </div>
 
- <script>
+  <script>
     // ==========================================
     // CRITICAL HYBRID CONFIGURATION
-    // อย่าลืมนำ URL Web App มาวางที่นี่เมื่อต้องการรันบน GitHub Pages
     // ==========================================
     const GAS_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw-5W0x3pSIlwE-vCUNOai_mJzQaEZ3gRLhsddK67Dwv3qVWO6qK-qu7U2CGWMUCRe-sQ/exec"; 
 
@@ -230,10 +242,9 @@
       warnAt: parseFloat(localStorage.getItem('cfg_warnAt')) || 10
     };
     
-    let state = "IDLE"; 
+    let state = "IDLE"; // IDLE, COUNTING, RUNNING, PAUSED, FINISHED
     let startTime, elapsedTime = 0, timerInterval = null, countdownInt = null;
     let lastBeepSecond = -1;
-    let isCountingDown = false;
 
     let myDeviceID = localStorage.getItem('timer_device_id');
     if (!myDeviceID) {
@@ -241,53 +252,37 @@
       localStorage.setItem('timer_device_id', myDeviceID);
     }
 
-    // สร้าง AudioContext รอไว้
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     
-    // ฟังก์ชันเล่นเสียงบี๊บ (Web Audio API)
     function playBeep(freq = 880, dur = 0.1) {
       try {
-        if (audioCtx.state === 'suspended') {
-          audioCtx.resume();
-        }
+        if (audioCtx.state === 'suspended') audioCtx.resume();
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
         osc.type = "sine"; 
         osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
         gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-        osc.connect(gain); 
-        gain.connect(audioCtx.destination);
-        osc.start(); 
-        osc.stop(audioCtx.currentTime + dur);
-      } catch (e) {
-        console.error("Audio error:", e);
-      }
+        osc.connect(gain); gain.connect(audioCtx.destination);
+        osc.start(); osc.stop(audioCtx.currentTime + dur);
+      } catch (e) { console.error("Audio error:", e); }
     }
 
-    // เทคนิคปลุก iOS Audio Engine ด้วยเสียงใบ้ (Silence) ป้องกันเสียงกระตุกนัดแรก
     function unlockIOSAudio() {
-      if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
-      }
-      // เล่นเสียงสั้นๆ แบบเบามาก เพื่อเปิดช่องสัญญาณบน iPad
+      if (audioCtx.state === 'suspended') audioCtx.resume();
       const buffer = audioCtx.createBuffer(1, 1, 22050);
       const source = audioCtx.createBufferSource();
-      source.buffer = buffer;
-      source.connect(audioCtx.destination);
+      source.buffer = buffer; source.connect(audioCtx.destination);
       source.start(0);
     }
 
     function setControlsEnabled(enabled) {
-      const isDisable = !enabled;
-      document.getElementById('settingBtn').disabled = isDisable;
-      document.querySelectorAll('.btn-sub').forEach(btn => btn.disabled = isDisable);
+      document.getElementById('settingBtn').disabled = !enabled;
+      document.querySelectorAll('.btn-sub').forEach(btn => btn.disabled = !enabled);
     }
 
     function directClose() {
-      window.open('', '_self', ''); 
-      window.close(); 
+      window.open('', '_self', ''); window.close(); 
       if (navigator.app && navigator.app.exitApp) navigator.app.exitApp();
-      
       setTimeout(() => {
         const fallbackUrl = "https://www.appsheet.com/start/4a35a640-88de-4af9-900f-2f08fb713f0a";
         try { window.top.location.href = fallbackUrl; } catch(e) { window.location.href = fallbackUrl; }
@@ -295,7 +290,7 @@
     }
 
     // ==========================================
-    // HYBRID CORE ENGINE (Auto Environment Switcher)
+    // HYBRID CORE ENGINE
     // ==========================================
     const isGoogleEnv = (typeof google !== 'undefined' && google.script && google.script.run);
 
@@ -310,15 +305,13 @@
         }
       } else {
         let url = `${GAS_WEB_APP_URL}?action=${action}`;
-        for (let key in params) {
-          url += `&${key}=${encodeURIComponent(params[key])}`;
-        }
+        for (let key in params) { url += `&${key}=${encodeURIComponent(params[key])}`; }
         fetch(url)
           .then(res => res.json())
           .then(data => callback(data))
           .catch(err => {
             console.error("API Error:", err);
-            Swal.fire('Error', 'การเชื่อมต่อฐานข้อมูลล้มเหลว โปรดตรวจสอบ URL Web App', 'error');
+            Swal.fire('Error', 'การเชื่อมต่อฐานข้อมูลล้มเหลว', 'error');
             if(action === 'getTeamInfo') callback(null);
           });
       }
@@ -335,91 +328,125 @@
         callback(urlParams.get('rowKey') || "");
       }
     }
-    // ==========================================
 
-    function handleAction() {
+    // ==========================================
+    // STATE MACHINE & DYNAMIC UI SWITCHER
+    // ==========================================
+    function renderButtonUI() {
+      const controller = document.getElementById('action-controller');
+      
       if (state === "IDLE") {
-        unlockIOSAudio(); // ปลุกระบบเสียงบน iPad ทันทีที่นิ้วจิ้มปุ่ม Start
-        if (CONFIG.useCountdown) startCountdown(); else startRunning();
-      } else if (state === "RUNNING") {
-        stopRunning();
-      } else if (state === "FINISHED") {
-        confirmSave();
+        controller.innerHTML = `<button id="actionBtn" class="action-btn-style btn-start" onclick="handleAction()">START</button>`;
+      } 
+      else if (state === "COUNTING") {
+        controller.innerHTML = `<button id="actionBtn" class="action-btn-style btn-start" style="opacity: 0.5; cursor: not-allowed;" disabled>COUNTDOWN</button>`;
+      } 
+      else if (state === "RUNNING") {
+        controller.innerHTML = `
+          <div class="control-grid">
+            <button class="action-btn-style btn-pause" onclick="pauseRunning()">PAUSE</button>
+            <button class="action-btn-style btn-stop" onclick="stopRunning()">STOP</button>
+          </div>
+        `;
+      } 
+      else if (state === "PAUSED") {
+        controller.innerHTML = `
+          <div class="control-grid">
+            <button class="action-btn-style btn-start" onclick="resumeRunning()">RESUME</button>
+            <button class="action-btn-style btn-stop" onclick="stopRunning()">STOP</button>
+          </div>
+        `;
+      } 
+      else if (state === "FINISHED") {
+        controller.innerHTML = `<button id="actionBtn" class="action-btn-style btn-save-mode" onclick="confirmSave()">SAVE RESULT</button>`;
       }
     }
 
-    // ปรับปรุงระบบนับถอยหลังโดยอิงเวลาจริง (Time-based) แก้ไขปัญหาเสียงดีเลย์บน iPad
+    function handleAction() {
+      if (state === "IDLE") {
+        unlockIOSAudio();
+        if (CONFIG.useCountdown) {
+          startCountdown();
+        } else {
+          startRunning();
+        }
+      }
+    }
+
     function startCountdown() {
-      state = "COUNTING"; 
-      isCountingDown = true;
+      state = "COUNTING";
+      renderButtonUI();
       setControlsEnabled(false);
       
-      const btn = document.getElementById('actionBtn');
       const display = document.getElementById('display');
-      
-      btn.disabled = true; 
-      btn.style.opacity = "0.5";
       display.classList.add('counting');
       
       let lastTriggeredSecond = -1;
-      const countdownDuration = 3000; // 3 วินาที
+      const countdownDuration = 3000;
       const countdownStart = Date.now();
 
       countdownInt = setInterval(() => {
         const timePassed = Date.now() - countdownStart;
         const timeLeft = countdownDuration - timePassed;
-        
-        // แปลงเป็นวินาทีที่จะแสดง (3, 2, 1)
         const currentCount = Math.ceil(timeLeft / 1000);
 
         if (timeLeft > 0) {
           if (currentCount !== lastTriggeredSecond) {
             display.innerText = currentCount;
-            playBeep(440, 0.1); // เสียงปี๊บเตือนแต่ละวินาที
+            playBeep(440, 0.1);
             lastTriggeredSecond = currentCount;
           }
         } else {
-          // สิ้นสุดการนับถอยหลัง -> เริ่มจับเวลาทันที
-          clearInterval(countdownInt); 
+          clearInterval(countdownInt);
           countdownInt = null;
-          display.classList.remove('counting'); 
-          playBeep(880, 0.3); // เสียงปิ๊บเริ่มสัญญานยาว (GO!)
-          isCountingDown = false; 
-          startRunning(); 
+          display.classList.remove('counting');
+          playBeep(880, 0.3);
+          startRunning();
         }
-      }, 16); // ทำงานที่ความถี่ ~60fps เพื่อความแม่นยำสูงสไตล์เกมมิ่ง
+      }, 16);
 
-      // ยิงนัดแรกทันทีแบบไม่ต้องรอรอบ Interval
       display.innerText = "3";
       playBeep(440, 0.1);
       lastTriggeredSecond = 3;
     }
 
     function startRunning() {
-      state = "RUNNING"; 
+      state = "RUNNING";
+      renderButtonUI();
       setControlsEnabled(false);
-      const btn = document.getElementById('actionBtn');
-      btn.disabled = false; 
-      btn.style.opacity = "1";
-      btn.innerText = "STOP"; 
-      btn.className = "btn-stop";
       startTime = Date.now() - elapsedTime;
       timerInterval = setInterval(update, 10);
     }
 
+    function pauseRunning() {
+      if (state === "RUNNING") {
+        clearInterval(timerInterval);
+        timerInterval = null;
+        state = "PAUSED";
+        renderButtonUI();
+      }
+    }
+
+    function resumeRunning() {
+      if (state === "PAUSED") {
+        state = "RUNNING";
+        renderButtonUI();
+        startTime = Date.now() - elapsedTime;
+        timerInterval = setInterval(update, 10);
+      }
+    }
+
     function stopRunning() {
-      state = "FINISHED"; 
-      clearInterval(timerInterval); 
+      clearInterval(timerInterval);
       timerInterval = null;
+      state = "FINISHED";
+      renderButtonUI();
       setControlsEnabled(true);
-      const btn = document.getElementById('actionBtn');
-      btn.innerText = "SAVE RESULT"; 
-      btn.className = "btn-save-mode";
       displayTime(elapsedTime);
     }
 
     function update() {
-      const now = Date.now(); 
+      const now = Date.now();
       elapsedTime = now - startTime;
       const limitMs = CONFIG.limit * 1000;
       
@@ -436,14 +463,14 @@
       const progressBar = document.getElementById('progress-bar');
       
       if (CONFIG.useWarning && remainSec <= CONFIG.warnAt && state === "RUNNING") {
-        display.classList.add('warning-active'); 
+        display.classList.add('warning-active');
         progressBar.classList.add('warning-active');
         if (currentSec !== lastBeepSecond && elapsedTime < limitMs) {
-          playBeep(880, 0.1); 
+          playBeep(880, 0.1);
           lastBeepSecond = currentSec;
         }
       } else {
-        display.classList.remove('warning-active'); 
+        display.classList.remove('warning-active');
         progressBar.classList.remove('warning-active');
       }
       displayTime(elapsedTime);
@@ -456,21 +483,19 @@
     }
 
     function reset() {
-      state = "IDLE"; 
-      clearInterval(timerInterval); 
-      clearInterval(countdownInt);
-      timerInterval = null; 
-      countdownInt = null; 
+      if (timerInterval) clearInterval(timerInterval);
+      if (countdownInt) clearInterval(countdownInt);
+      timerInterval = null;
+      countdownInt = null;
+      
+      state = "IDLE";
+      elapsedTime = 0;
+      lastBeepSecond = -1;
+      
       setControlsEnabled(true);
-      elapsedTime = 0; 
-      lastBeepSecond = -1; 
-      isCountingDown = false;
-      const btn = document.getElementById('actionBtn');
-      btn.innerText = "START"; 
-      btn.className = "btn-start"; 
-      btn.disabled = false; 
-      btn.style.opacity = "1";
+      renderButtonUI();
       displayTime(0);
+      
       document.getElementById('display').classList.remove('warning-active', 'counting');
       document.getElementById('progress-bar').classList.remove('warning-active');
     }
@@ -478,38 +503,54 @@
     function confirmSave() {
       const timeStr = (elapsedTime / 1000).toFixed(2);
       Swal.fire({
-        title: 'บันทึกเวลา?', text: `เวลาที่จับได้: ${timeStr} วินาที`, icon: 'question',
-        showCancelButton: true, confirmButtonColor: '#0284c7', confirmButtonText: 'บันทึก', cancelButtonText: 'ยกเลิก'
+        title: 'บันทึกเวลา?',
+        text: `เวลาที่จับได้: ${timeStr} วินาที`,
+        icon: 'question',
+        showCancelButton: true,
+        confirmButtonColor: '#16a34a',
+        confirmButtonText: 'บันทึก',
+        cancelButtonText: 'ยกเลิก'
       }).then((result) => { if (result.isConfirmed) saveToSheet(timeStr); });
     }
 
     function saveToSheet(timeStr) {
-      const btn = document.getElementById('actionBtn');
       if (!globalRowKey) { 
-        Swal.fire('Error', 'ไม่พบข้อมูล ID ทีมใน URL ลิงก์', 'error'); 
+        Swal.fire('Error', 'ไม่พบข้อมูล ID ทีมใน URL ลิงก์', 'error');
         return; 
       }
       
-      btn.innerText = "SAVING..."; 
-      btn.disabled = true;
+      // แสดง SweetAlert กำลังบันทึกข้อมูลแบบปิดไม่ได้ ป้องกันการกดซ้ำซ้อน
+      Swal.fire({
+        title: 'กำลังบันทึกข้อมูล...',
+        text: 'ระบบกำลังนำส่งเวลาเข้าสู่เซิร์ฟเวอร์ โปรดรอสักครู่',
+        allowOutsideClick: false,
+        allowEscapeKey: false,
+        didOpen: () => {
+          Swal.showLoading();
+        }
+      });
       
       callBackend('saveTime', { timeStr: timeStr, deviceID: myDeviceID, rowKey: globalRowKey }, function(res) {
+        Swal.close(); // ปิดโหลดดิ้ง
+        
         if(res && res.success) {
           Swal.fire({ 
-            icon: 'success', title: 'บันทึกสำเร็จ!', text: `บันทึกเวลา ${timeStr} วินาที เรียบร้อยแล้ว`, 
-            allowOutsideClick: false, allowEscapeKey: false,
-            confirmButtonColor: '#dc2626', confirmButtonText: '❌ ปิดหน้าจอกลับสู่ AppSheet'
+            icon: 'success',
+            title: 'บันทึกสำเร็จ!',
+            text: `บันทึกเวลา ${timeStr} วินาที เรียบร้อยแล้ว`,
+            allowOutsideClick: false,
+            allowEscapeKey: false,
+            confirmButtonColor: '#dc2626',
+            confirmButtonText: '❌ ปิดหน้าจอกลับสู่ AppSheet'
           }).then((result) => { if (result.isConfirmed) { directClose(); } });
         } else {
           Swal.fire('เกิดข้อผิดพลาด', res ? res.error : 'ไม่สามารถส่งข้อมูลได้', 'error');
-          btn.innerText = "SAVE RESULT"; 
-          btn.disabled = false;
         }
       });
     }
 
     function confirmReset() {
-      Swal.fire({ title: 'Reset เวลา?', icon: 'warning', showCancelButton: true, confirmButtonColor: '#dc2626', confirmButtonText: 'ใช่' })
+      Swal.fire({ title: 'Reset เวลา?', text: 'การจับเวลาปัจจุบันจะถูกล้างค่าออกทั้งหมด', icon: 'warning', showCancelButton: true, confirmButtonColor: '#dc2626', confirmButtonText: 'ใช่, รีเซ็ต' })
       .then((result) => { if (result.isConfirmed) reset(); });
     }
 
@@ -581,7 +622,6 @@
     window.onload = function() {
       document.getElementById('settingBtn').innerText = `LIMIT: ${CONFIG.limit.toFixed(2)}s ⚙️`;
       
-      // ผูก Event เพิ่มเติมเพื่อช่วยปลุกระบบ Audio ทันทีที่ผู้ใช้สัมผัสส่วนใดๆ ของหน้าจอครั้งแรก
       document.addEventListener('touchstart', unlockIOSAudio, { once: true });
       document.addEventListener('click', unlockIOSAudio, { once: true });
 
@@ -596,6 +636,6 @@
         }
       });
     };
-</script>
+  </script>
 </body>
 </html>
