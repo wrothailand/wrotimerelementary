@@ -215,7 +215,7 @@
     </div>
   </div>
 
-  <script>
+ <script>
     // ==========================================
     // CRITICAL HYBRID CONFIGURATION
     // อย่าลืมนำ URL Web App มาวางที่นี่เมื่อต้องการรันบน GitHub Pages
@@ -241,15 +241,40 @@
       localStorage.setItem('timer_device_id', myDeviceID);
     }
 
+    // สร้าง AudioContext รอไว้
     const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     
+    // ฟังก์ชันเล่นเสียงบี๊บ (Web Audio API)
     function playBeep(freq = 880, dur = 0.1) {
-      const osc = audioCtx.createOscillator();
-      const gain = audioCtx.createGain();
-      osc.type = "sine"; osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-      gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
-      osc.connect(gain); gain.connect(audioCtx.destination);
-      osc.start(); osc.stop(audioCtx.currentTime + dur);
+      try {
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = "sine"; 
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+        gain.gain.setValueAtTime(0.1, audioCtx.currentTime);
+        osc.connect(gain); 
+        gain.connect(audioCtx.destination);
+        osc.start(); 
+        osc.stop(audioCtx.currentTime + dur);
+      } catch (e) {
+        console.error("Audio error:", e);
+      }
+    }
+
+    // เทคนิคปลุก iOS Audio Engine ด้วยเสียงใบ้ (Silence) ป้องกันเสียงกระตุกนัดแรก
+    function unlockIOSAudio() {
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+      // เล่นเสียงสั้นๆ แบบเบามาก เพื่อเปิดช่องสัญญาณบน iPad
+      const buffer = audioCtx.createBuffer(1, 1, 22050);
+      const source = audioCtx.createBufferSource();
+      source.buffer = buffer;
+      source.connect(audioCtx.destination);
+      source.start(0);
     }
 
     function setControlsEnabled(enabled) {
@@ -314,6 +339,7 @@
 
     function handleAction() {
       if (state === "IDLE") {
+        unlockIOSAudio(); // ปลุกระบบเสียงบน iPad ทันทีที่นิ้วจิ้มปุ่ม Start
         if (CONFIG.useCountdown) startCountdown(); else startRunning();
       } else if (state === "RUNNING") {
         stopRunning();
@@ -322,50 +348,86 @@
       }
     }
 
+    // ปรับปรุงระบบนับถอยหลังโดยอิงเวลาจริง (Time-based) แก้ไขปัญหาเสียงดีเลย์บน iPad
     function startCountdown() {
-      state = "COUNTING"; isCountingDown = true;
-      let count = 3; setControlsEnabled(false);
+      state = "COUNTING"; 
+      isCountingDown = true;
+      setControlsEnabled(false);
+      
       const btn = document.getElementById('actionBtn');
       const display = document.getElementById('display');
-      btn.disabled = true; btn.style.opacity = "0.5";
-      display.classList.add('counting');
-      if (audioCtx.state === 'suspended') audioCtx.resume();
       
+      btn.disabled = true; 
+      btn.style.opacity = "0.5";
+      display.classList.add('counting');
+      
+      let lastTriggeredSecond = -1;
+      const countdownDuration = 3000; // 3 วินาที
+      const countdownStart = Date.now();
+
       countdownInt = setInterval(() => {
-        if (count > 0) { 
-          display.innerText = count; playBeep(440); count--; 
-        } else { 
-          clearInterval(countdownInt); countdownInt = null;
-          display.classList.remove('counting'); playBeep(880, 0.3);
-          isCountingDown = false; startRunning(); 
+        const timePassed = Date.now() - countdownStart;
+        const timeLeft = countdownDuration - timePassed;
+        
+        // แปลงเป็นวินาทีที่จะแสดง (3, 2, 1)
+        const currentCount = Math.ceil(timeLeft / 1000);
+
+        if (timeLeft > 0) {
+          if (currentCount !== lastTriggeredSecond) {
+            display.innerText = currentCount;
+            playBeep(440, 0.1); // เสียงปี๊บเตือนแต่ละวินาที
+            lastTriggeredSecond = currentCount;
+          }
+        } else {
+          // สิ้นสุดการนับถอยหลัง -> เริ่มจับเวลาทันที
+          clearInterval(countdownInt); 
+          countdownInt = null;
+          display.classList.remove('counting'); 
+          playBeep(880, 0.3); // เสียงปิ๊บเริ่มสัญญานยาว (GO!)
+          isCountingDown = false; 
+          startRunning(); 
         }
-      }, 1000);
-      display.innerText = count; playBeep(440); count--;
+      }, 16); // ทำงานที่ความถี่ ~60fps เพื่อความแม่นยำสูงสไตล์เกมมิ่ง
+
+      // ยิงนัดแรกทันทีแบบไม่ต้องรอรอบ Interval
+      display.innerText = "3";
+      playBeep(440, 0.1);
+      lastTriggeredSecond = 3;
     }
 
     function startRunning() {
-      state = "RUNNING"; setControlsEnabled(false);
+      state = "RUNNING"; 
+      setControlsEnabled(false);
       const btn = document.getElementById('actionBtn');
-      btn.disabled = false; btn.style.opacity = "1";
-      btn.innerText = "STOP"; btn.className = "btn-stop";
+      btn.disabled = false; 
+      btn.style.opacity = "1";
+      btn.innerText = "STOP"; 
+      btn.className = "btn-stop";
       startTime = Date.now() - elapsedTime;
       timerInterval = setInterval(update, 10);
     }
 
     function stopRunning() {
-      state = "FINISHED"; clearInterval(timerInterval); timerInterval = null;
+      state = "FINISHED"; 
+      clearInterval(timerInterval); 
+      timerInterval = null;
       setControlsEnabled(true);
       const btn = document.getElementById('actionBtn');
-      btn.innerText = "SAVE RESULT"; btn.className = "btn-save-mode";
+      btn.innerText = "SAVE RESULT"; 
+      btn.className = "btn-save-mode";
       displayTime(elapsedTime);
     }
 
     function update() {
-      const now = Date.now(); elapsedTime = now - startTime;
+      const now = Date.now(); 
+      elapsedTime = now - startTime;
       const limitMs = CONFIG.limit * 1000;
       
       if (elapsedTime >= limitMs) { 
-        elapsedTime = limitMs; stopRunning(); playBeep(440, 0.5); return;
+        elapsedTime = limitMs; 
+        stopRunning(); 
+        playBeep(440, 0.5); 
+        return;
       }
       
       const currentSec = Math.floor(elapsedTime / 1000);
@@ -374,12 +436,15 @@
       const progressBar = document.getElementById('progress-bar');
       
       if (CONFIG.useWarning && remainSec <= CONFIG.warnAt && state === "RUNNING") {
-        display.classList.add('warning-active'); progressBar.classList.add('warning-active');
+        display.classList.add('warning-active'); 
+        progressBar.classList.add('warning-active');
         if (currentSec !== lastBeepSecond && elapsedTime < limitMs) {
-          playBeep(880, 0.1); lastBeepSecond = currentSec;
+          playBeep(880, 0.1); 
+          lastBeepSecond = currentSec;
         }
       } else {
-        display.classList.remove('warning-active'); progressBar.classList.remove('warning-active');
+        display.classList.remove('warning-active'); 
+        progressBar.classList.remove('warning-active');
       }
       displayTime(elapsedTime);
     }
@@ -391,11 +456,20 @@
     }
 
     function reset() {
-      state = "IDLE"; clearInterval(timerInterval); clearInterval(countdownInt);
-      timerInterval = null; countdownInt = null; setControlsEnabled(true);
-      elapsedTime = 0; lastBeepSecond = -1; isCountingDown = false;
+      state = "IDLE"; 
+      clearInterval(timerInterval); 
+      clearInterval(countdownInt);
+      timerInterval = null; 
+      countdownInt = null; 
+      setControlsEnabled(true);
+      elapsedTime = 0; 
+      lastBeepSecond = -1; 
+      isCountingDown = false;
       const btn = document.getElementById('actionBtn');
-      btn.innerText = "START"; btn.className = "btn-start"; btn.disabled = false; btn.style.opacity = "1";
+      btn.innerText = "START"; 
+      btn.className = "btn-start"; 
+      btn.disabled = false; 
+      btn.style.opacity = "1";
       displayTime(0);
       document.getElementById('display').classList.remove('warning-active', 'counting');
       document.getElementById('progress-bar').classList.remove('warning-active');
@@ -412,10 +486,12 @@
     function saveToSheet(timeStr) {
       const btn = document.getElementById('actionBtn');
       if (!globalRowKey) { 
-        Swal.fire('Error', 'ไม่พบข้อมูล ID ทีมใน URL ลิงก์', 'error'); return; 
+        Swal.fire('Error', 'ไม่พบข้อมูล ID ทีมใน URL ลิงก์', 'error'); 
+        return; 
       }
       
-      btn.innerText = "SAVING..."; btn.disabled = true;
+      btn.innerText = "SAVING..."; 
+      btn.disabled = true;
       
       callBackend('saveTime', { timeStr: timeStr, deviceID: myDeviceID, rowKey: globalRowKey }, function(res) {
         if(res && res.success) {
@@ -426,7 +502,8 @@
           }).then((result) => { if (result.isConfirmed) { directClose(); } });
         } else {
           Swal.fire('เกิดข้อผิดพลาด', res ? res.error : 'ไม่สามารถส่งข้อมูลได้', 'error');
-          btn.innerText = "SAVE RESULT"; btn.disabled = false;
+          btn.innerText = "SAVE RESULT"; 
+          btn.disabled = false;
         }
       });
     }
@@ -504,6 +581,10 @@
     window.onload = function() {
       document.getElementById('settingBtn').innerText = `LIMIT: ${CONFIG.limit.toFixed(2)}s ⚙️`;
       
+      // ผูก Event เพิ่มเติมเพื่อช่วยปลุกระบบ Audio ทันทีที่ผู้ใช้สัมผัสส่วนใดๆ ของหน้าจอครั้งแรก
+      document.addEventListener('touchstart', unlockIOSAudio, { once: true });
+      document.addEventListener('click', unlockIOSAudio, { once: true });
+
       getURLParameters(function(rowKey) {
         globalRowKey = rowKey;
         if (globalRowKey) {
@@ -515,6 +596,6 @@
         }
       });
     };
-  </script>
+</script>
 </body>
 </html>
