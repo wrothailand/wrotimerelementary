@@ -555,7 +555,7 @@
       
       Swal.fire({
         title: 'กำลังบันทึกข้อมูล...',
-        text: 'ระบบกำลังส่งข้อมูลเวลาเข้าสู่คลาวด์ โปรดรอสักครู่',
+        text: 'รอแป๊บนะ กำลังเซฟอยู่',
         allowOutsideClick: false,
         allowEscapeKey: false,
         didOpen: () => { Swal.showLoading(); }
@@ -566,12 +566,12 @@
         if(res && res.success) {
           Swal.fire({ 
             icon: 'success',
-            title: 'บันทึกสำเร็จ!',
+            title: 'เซฟแล้วนะ!',
             text: `ส่งผลการจับเวลา ${timeStr} วินาที เรียบร้อย`,
             allowOutsideClick: false,
             allowEscapeKey: false,
             confirmButtonColor: '#dc2626',
-            confirmButtonText: '❌ ปิดหน้าจอกลับสู่ AppSheet'
+            confirmButtonText: '❌ ปิดหน้าจอกด้วยนะ'
           }).then((result) => { if (result.isConfirmed) { directClose(); } });
         } else {
           Swal.fire('เกิดข้อผิดพลาด', res ? res.error : 'ไม่สามารถส่งข้อมูลได้', 'error');
